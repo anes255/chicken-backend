@@ -7,6 +7,8 @@
   let allParticipants = [];
   let allBreeds = [];
   let modalEditor = null;
+  let page = 1;
+  const PAGE_SIZE = 50; // keeps the DOM light even with thousands of participants
 
   $('logoutBtn').addEventListener('click', (e) => { e.preventDefault(); Auth.logout(); });
 
@@ -134,11 +136,15 @@
   }
 
   function renderTable() {
-    const rows = filtered();
-    $('emptyMsg').classList.toggle('hidden', rows.length > 0);
+    const all = filtered();
+    const pages = Math.max(1, Math.ceil(all.length / PAGE_SIZE));
+    if (page > pages) page = pages;
+    const start = (page - 1) * PAGE_SIZE;
+    const rows = all.slice(start, start + PAGE_SIZE);
+    $('emptyMsg').classList.toggle('hidden', all.length > 0);
     $('usersBody').innerHTML = rows.map((p, i) => `
       <tr>
-        <td>${i + 1}</td>
+        <td>${start + i + 1}</td>
         <td><b>${esc(p.fullName)}</b></td>
         <td>${esc(p.phone)}</td>
         <td><span class="badge beige">${esc(p.wilaya)}</span></td>
@@ -156,11 +162,26 @@
       b.addEventListener('click', () => openEdit(b.getAttribute('data-edit'))));
     $('usersBody').querySelectorAll('[data-del]').forEach((b) =>
       b.addEventListener('click', () => del(b.getAttribute('data-del'))));
+
+    renderPager(all.length, pages);
   }
 
-  $('search').addEventListener('input', renderTable);
-  $('wilayaFilter').addEventListener('change', renderTable);
-  $('breedFilter').addEventListener('change', renderTable);
+  function renderPager(total, pages) {
+    const pager = $('pager');
+    if (total <= PAGE_SIZE) { pager.innerHTML = total ? `<span class="pginfo">${total} مشارك</span>` : ''; return; }
+    pager.innerHTML =
+      `<button id="prevPage" ${page <= 1 ? 'disabled' : ''}>‹ السابق</button>` +
+      `<span class="pginfo">صفحة ${page} من ${pages} · ${total} مشارك</span>` +
+      `<button id="nextPage" ${page >= pages ? 'disabled' : ''}>التالي ›</button>`;
+    const prev = $('prevPage'), next = $('nextPage');
+    if (prev) prev.onclick = () => { page--; renderTable(); };
+    if (next) next.onclick = () => { page++; renderTable(); };
+  }
+
+  function resetAndRender() { page = 1; renderTable(); }
+  $('search').addEventListener('input', resetAndRender);
+  $('wilayaFilter').addEventListener('change', resetAndRender);
+  $('breedFilter').addEventListener('change', resetAndRender);
 
   // ---- edit modal ----
   const modalBg = $('modalBg');

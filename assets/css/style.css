@@ -193,6 +193,11 @@ tbody tr:hover{background:var(--beige-100)}
 .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.78rem;font-weight:700;background:var(--green-600);color:#fff}
 .badge.beige{background:var(--beige-200);color:var(--green-800)}
 .bar{height:9px;border-radius:999px;background:linear-gradient(90deg,var(--green-500),var(--green-700));min-width:6px}
+.pager{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:16px;flex-wrap:wrap}
+.pager button{padding:7px 14px;border-radius:10px;border:1.5px solid var(--green-500);background:#fff;color:var(--green-700);font-family:inherit;font-weight:700;cursor:pointer;transition:.2s}
+.pager button:hover:not(:disabled){background:var(--green-600);color:#fff}
+.pager button:disabled{opacity:.4;cursor:not-allowed}
+.pager .pginfo{color:var(--muted);font-size:.9rem}
 
 /* ---------- Footer ---------- */
 .site-footer{background:linear-gradient(180deg,var(--green-800),var(--green-900));color:var(--beige-100);margin-top:60px}
