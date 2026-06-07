@@ -1,24 +1,84 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240" role="img" aria-label="المعرض الوطني لدجاج الزينة">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" width="320" height="320" role="img" aria-label="المعرض الوطني لدجاج الزينة بالجزائر 2026">
   <defs>
-    <linearGradient id="mg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#2f7d4f"/>
-      <stop offset="1" stop-color="#1d5235"/>
+    <linearGradient id="ring" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2f9e54"/><stop offset="1" stop-color="#15793a"/>
     </linearGradient>
-    <linearGradient id="mgold" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#f3d9a0"/>
-      <stop offset="1" stop-color="#cda860"/>
+    <radialGradient id="cream" cx="50%" cy="45%" r="60%">
+      <stop offset="0" stop-color="#fbf6e9"/><stop offset="1" stop-color="#ecdcbb"/>
+    </radialGradient>
+    <linearGradient id="gold2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f6dc97"/><stop offset="1" stop-color="#c79a44"/>
     </linearGradient>
+    <path id="topArc" d="M44,160 A116,116 0 0 1 276,160" fill="none"/>
+    <path id="botArc" d="M58,160 A102,102 0 0 0 262,160" fill="none"/>
   </defs>
-  <circle cx="120" cy="120" r="116" fill="url(#mg)" stroke="url(#mgold)" stroke-width="6"/>
-  <circle cx="120" cy="120" r="100" fill="none" stroke="#f3d9a0" stroke-width="1.5" stroke-dasharray="3 5" opacity="0.7"/>
-  <!-- rooster -->
-  <g transform="translate(70,72)">
-    <path d="M52 12c8-6 18-4 20 4 6-2 12 2 11 9 7 1 10 8 6 14-2 3-6 4-9 3 3 8-2 17-11 18-2 9-11 15-21 13-3 7-12 11-20 7-7-3-10-12-6-19-8-2-13-11-9-19 2-5 7-7 12-7-1-7 4-13 11-13 3-7 11-10 18-7 1-1 2-3 5-5l3 2z" fill="url(#mgold)"/>
-    <circle cx="40" cy="36" r="3.2" fill="#1d5235"/>
-    <path d="M22 44c-6 8-7 22-2 34 3 7 10 13 18 15-10 1-21-4-26-14-5-9-3-25 10-35z" fill="#f3d9a0"/>
-    <path d="M70 30c10 2 18 11 18 22 0 6-2 11-6 15 2-9-1-19-8-26-2-4-2-8-4-11z" fill="#e7c277"/>
-    <path d="M44 96c-3 8-2 16 2 22M58 98c-2 7-1 14 3 20" stroke="#cda860" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+  <!-- rings -->
+  <circle cx="160" cy="160" r="156" fill="#0f5e2c"/>
+  <circle cx="160" cy="160" r="150" fill="url(#ring)"/>
+  <circle cx="160" cy="160" r="120" fill="url(#cream)" stroke="url(#gold2)" stroke-width="5"/>
+  <circle cx="160" cy="160" r="120" fill="none" stroke="#0f5e2c" stroke-width="1" opacity=".25"/>
+
+  <!-- top arc text -->
+  <text font-family="Georgia, 'Times New Roman', serif" font-weight="700" fill="#fbf6e9" font-size="17" letter-spacing="2">
+    <textPath href="#topArc" startOffset="50%" text-anchor="middle">ALGERIAN  NATIONAL</textPath>
+  </text>
+  <!-- bottom arc text -->
+  <text font-family="Georgia, serif" font-weight="700" fill="#fbf6e9" font-size="18" letter-spacing="3">
+    <textPath href="#botArc" startOffset="50%" text-anchor="middle">ALGERIA  2026</textPath>
+  </text>
+
+  <!-- crescent + star (top) -->
+  <g transform="translate(160,34)" fill="#fbf6e9">
+    <path d="M6 0a9 9 0 1 0 0 18 7 7 0 1 1 0-18z"/>
+    <path d="M16 5l1.6 3.4 3.7.4-2.8 2.5.8 3.6-3.3-1.9-3.3 1.9.8-3.6-2.8-2.5 3.7-.4z"/>
   </g>
-  <!-- ribbon star -->
-  <path d="M120 198l5 11 12 1-9 8 3 12-11-6-11 6 3-12-9-8 12-1z" fill="url(#mgold)"/>
+  <text x="160" y="60" text-anchor="middle" font-family="Tahoma, sans-serif" font-weight="700" fill="#0f5e2c" font-size="15">المعرض الوطني</text>
+
+  <!-- Algeria flag behind rooster -->
+  <g transform="translate(160,150)">
+    <rect x="-46" y="-44" width="92" height="78" rx="6" fill="#fff" opacity=".85"/>
+    <rect x="-46" y="-44" width="46" height="78" rx="6" fill="#0a8a43" opacity=".85"/>
+    <g fill="#d21034" transform="translate(0,-4)">
+      <path d="M2 0a17 17 0 1 0 0 28 13 13 0 1 1 0-28z"/>
+      <path d="M20 8l2.6 5.6 6 .6-4.5 4 1.3 6-5.4-3.2-5.4 3.2 1.3-6-4.5-4 6-.6z"/>
+    </g>
+  </g>
+
+  <!-- ===== rooster ===== -->
+  <g transform="translate(150,118)">
+    <!-- tail feathers -->
+    <path d="M14 36 C-20 6 -34 -22 -20 -44 C-8 -22 -2 -8 16 6 Z" fill="#1d8a4c"/>
+    <path d="M18 36 C-12 4 -24 -26 -6 -48 C2 -24 8 -8 22 8 Z" fill="#2b6cb0"/>
+    <path d="M24 36 C0 2 -8 -30 14 -50 C16 -26 18 -6 30 12 Z" fill="#e8a13a"/>
+    <path d="M30 38 C12 6 12 -24 34 -42 C30 -20 28 -2 38 18 Z" fill="#c0392b"/>
+    <!-- body -->
+    <path d="M20 30 C16 8 30 -8 52 -8 C74 -8 86 8 84 30 C82 54 60 70 44 70 C26 70 24 50 20 30 Z" fill="#f3e4c3"/>
+    <path d="M40 18 C54 10 70 14 78 28 C70 24 56 24 46 32 Z" fill="#b9803f"/>
+    <!-- breast highlight -->
+    <path d="M30 40 C30 58 42 66 50 66 C40 60 36 50 36 40 Z" fill="#e8d3a6"/>
+    <!-- head & neck -->
+    <path d="M70 -6 C84 -10 92 0 90 12 C88 22 78 26 70 22 C64 12 64 -2 70 -6 Z" fill="#f3e4c3"/>
+    <!-- comb -->
+    <path d="M74 -14 c4 -6 12 -6 12 0 c4 -6 10 -4 8 4 c4 -2 8 4 2 8 c-6 2 -18 0 -22 -4 Z" fill="#d21034"/>
+    <!-- wattle -->
+    <path d="M84 16 c6 2 8 10 2 14 c-4 2 -8 -2 -8 -8 Z" fill="#d21034"/>
+    <!-- beak -->
+    <path d="M92 6 l12 3 -12 6 Z" fill="#e8a13a"/>
+    <!-- eye -->
+    <circle cx="82" cy="6" r="2.6" fill="#1a1a1a"/>
+    <!-- legs -->
+    <path d="M48 68 l-2 22 M62 68 l3 22" stroke="#e0922f" stroke-width="4" stroke-linecap="round"/>
+    <path d="M42 90 h12 M62 90 h12" stroke="#e0922f" stroke-width="3.5" stroke-linecap="round"/>
+  </g>
+  <!-- perch -->
+  <rect x="118" y="210" width="84" height="8" rx="4" fill="#9c6b32"/>
+
+  <!-- bottom ribbon -->
+  <g transform="translate(160,236)">
+    <path d="M-96 0 l16 -10 v8 h160 v-8 l16 10 -16 10 v-8 H-80 v8 Z" fill="#0f5e2c"/>
+    <rect x="-80" y="-9" width="160" height="20" fill="#15793a"/>
+    <text x="0" y="5" text-anchor="middle" font-family="Tahoma, sans-serif" font-weight="700" fill="#f6dc97" font-size="11">دجاج الزينة بالجزائر 2026</text>
+  </g>
+  <text x="160" y="258" text-anchor="middle" font-family="Georgia, serif" font-weight="700" fill="#0f5e2c" font-size="8.5" letter-spacing=".4">FANCY CHICKEN EXHIBITION 2026</text>
 </svg>
