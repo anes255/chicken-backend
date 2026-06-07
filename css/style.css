@@ -187,3 +187,107 @@ tbody tr:hover { background:#f7f5ef; }
   .stats-grid, .cards, .feature-cards, .admin-stats { grid-template-columns: 1fr; }
   .brand-text strong { font-size: 18px; }
 }
+
+/* ============================================================
+   ANIMATIONS & DYNAMIC MOVEMENT
+   ============================================================ */
+@keyframes fadeUp { from { opacity:0; transform: translateY(28px); } to { opacity:1; transform: none; } }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+@keyframes floatY { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+@keyframes pulseGlow {
+  0%,100% { box-shadow: 0 8px 24px rgba(0,0,0,.08); }
+  50% { box-shadow: 0 12px 34px rgba(31,107,59,.28); }
+}
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+@keyframes heroPan { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+@keyframes spinSlow { to { transform: rotate(360deg); } }
+@keyframes popIn { 0% { opacity:0; transform: scale(.85); } 70% { transform: scale(1.04); } 100% { opacity:1; transform: scale(1); } }
+
+/* Scroll reveal — elements get .reveal from app.js, .is-visible when in view */
+.reveal { opacity: 0; transform: translateY(30px); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1); }
+.reveal.is-visible { opacity: 1; transform: none; }
+.reveal-delay-1 { transition-delay: .08s; }
+.reveal-delay-2 { transition-delay: .16s; }
+.reveal-delay-3 { transition-delay: .24s; }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity:1 !important; transform:none !important; transition:none; }
+  * { animation: none !important; }
+}
+
+/* Animated hero gradient + entrance */
+.hero {
+  background-size: 200% 200%, cover, auto;
+  animation: heroPan 18s ease-in-out infinite;
+}
+.hero h1 { animation: fadeUp .8s ease both; }
+.hero p.lead { animation: fadeUp .8s .12s ease both; }
+.hero .meta { animation: fadeUp .8s .22s ease both; }
+.hero-actions { animation: fadeUp .8s .32s ease both; }
+.hero-logo-card { animation: popIn .9s .2s ease both; }
+.hero-logo-card img { animation: floatY 5s ease-in-out infinite; will-change: transform; }
+
+/* Logos breathe gently */
+.brand-logo { transition: transform .4s ease, filter .4s ease; }
+.brand:hover .brand-logo { transform: scale(1.06) rotate(-2deg); }
+.brand-logo-right:hover { transform: scale(1.08) rotate(3deg); filter: drop-shadow(0 6px 12px rgba(0,0,0,.2)); }
+
+/* Nav underline grows from center */
+.nav-links a { position: relative; }
+.nav-links a::after {
+  content:""; position:absolute; left:50%; right:50%; bottom:0; height:3px;
+  background: var(--gold); transition: left .25s ease, right .25s ease;
+}
+.nav-links a:hover::after { left:14px; right:14px; }
+
+/* Buttons: lift + golden shimmer sweep */
+.btn { position: relative; overflow: hidden; }
+.btn::before {
+  content:""; position:absolute; inset:0;
+  background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,.35) 50%, transparent 70%);
+  background-size: 200% 100%; opacity: 0; transition: opacity .2s;
+}
+.btn:hover::before { opacity: 1; animation: shimmer 1s linear; }
+.btn:hover { transform: translateY(-2px); }
+.btn:active { transform: translateY(0); }
+
+/* Stat cards: lift + glow on hover, animated top bar */
+.stat-card { transition: transform .3s ease, box-shadow .3s ease; }
+.stat-card:hover { transform: translateY(-6px); animation: pulseGlow 1.6s ease infinite; }
+.stat-card .num { display:inline-block; transition: transform .3s ease; }
+.stat-card:hover .num { transform: scale(1.12); }
+
+/* Section title underline sweep */
+.section-title::after { transition: width .5s ease; }
+.section-title:hover::after { width: 120px; }
+
+/* Feature & breed cards lift and image zoom */
+.feature, .breed-card, .panel { transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease; }
+.feature:hover { transform: translateY(-6px); box-shadow: 0 16px 36px rgba(31,107,59,.16); border-right-color: var(--gold); }
+.breed-card:hover { transform: translateY(-6px); box-shadow: 0 16px 36px rgba(0,0,0,.16); }
+.breed-card img { transition: transform .5s ease; }
+.breed-card:hover img { transform: scale(1.08); }
+
+/* Numbered objective items slide in on hover */
+.list-numbered li, .rules-list li { transition: background .25s ease, padding .25s ease; }
+.list-numbered li:hover { background: rgba(31,107,59,.05); padding-right: 64px; }
+.list-numbered li:hover::before { transform: rotate(-6deg) scale(1.08); }
+.list-numbered li::before { transition: transform .25s ease; }
+.rules-list li:hover { background: rgba(201,163,65,.07); padding-right: 38px; }
+
+/* Table rows fade in */
+tbody tr { transition: background .2s ease; }
+
+/* Form focus pop */
+.field input, .field select, .field textarea { transition: border-color .2s, box-shadow .2s, transform .2s; }
+.field input:focus, .field select:focus, .field textarea:focus { transform: translateY(-1px); }
+
+/* Page head subtle entrance */
+.page-head h1 { animation: fadeUp .7s ease both; }
+.page-head p { animation: fadeUp .7s .12s ease both; }
+
+/* Alert pop */
+.alert.show { animation: popIn .35s ease both; }
+
+/* Loading spinner utility */
+.spin { display:inline-block; width:18px; height:18px; border:3px solid rgba(255,255,255,.4);
+  border-top-color:#fff; border-radius:50%; animation: spinSlow .8s linear infinite; }

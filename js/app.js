@@ -91,7 +91,56 @@ function requireAdmin() {
   return true;
 }
 
+// ---------- Dynamic movement: scroll reveal + counters ----------
+function initReveal() {
+  const targets = document.querySelectorAll(
+    '.stat-card, .feature, .breed-card, .panel, .section-title, .hero-logo-card, tbody tr'
+  );
+  if (!('IntersectionObserver' in window) || !targets.length) {
+    targets.forEach((t) => t.classList.add('is-visible'));
+    return;
+  }
+  targets.forEach((t, i) => {
+    t.classList.add('reveal');
+    if (i % 4) t.classList.add('reveal-delay-' + (i % 4));
+  });
+  const io = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) { e.target.classList.add('is-visible'); io.unobserve(e.target); }
+      });
+    },
+    { threshold: 0.12 }
+  );
+  targets.forEach((t) => io.observe(t));
+}
+
+// Count-up animation for any .num element holding an integer
+function animateCounters() {
+  document.querySelectorAll('.stat-card .num').forEach((el) => {
+    let last = null;
+    const run = () => {
+      const target = parseInt(String(el.textContent).replace(/\D/g, ''), 10);
+      if (!Number.isFinite(target) || target <= 0 || target === last) return;
+      last = target;
+      let cur = 0;
+      const step = Math.max(1, Math.ceil(target / 40));
+      const tick = () => {
+        cur += step;
+        if (cur >= target) { el.textContent = target; return; }
+        el.textContent = cur;
+        requestAnimationFrame(tick);
+      };
+      tick();
+    };
+    new MutationObserver(run).observe(el, { childList: true });
+    run();
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   renderHeader();
   renderFooter();
+  initReveal();
+  animateCounters();
 });
