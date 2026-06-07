@@ -80,6 +80,52 @@
     if (selectedW) { wilayaSelect.value = selectedW; loadCommunes(selectedW, selectedB); }
   };
 
+  // ---- breeds list (public) ----
+  window.loadBreeds = async function () {
+    try { return (await api('/api/breeds')).breeds || []; } catch { return []; }
+  };
+
+  // ---- reusable multi-breed editor (register / dashboard / admin) ----
+  // Each row = { breed (select), birds, cages }. Returns { entries } getter.
+  window.makeBreedEditor = function ({ container, addBtn, breeds, entries }) {
+    function options(sel) {
+      return '<option value="">اختر السلالة</option>' +
+        breeds.map((b) => `<option value="${b.name}"${b.name === sel ? ' selected' : ''}>${b.name}</option>`).join('');
+    }
+    function addRow(e) {
+      e = e || { breed: '', birds: '', cages: '' };
+      const row = document.createElement('div');
+      row.className = 'breed-row';
+      row.innerHTML =
+        `<select class="br-breed" aria-label="السلالة">${options(e.breed)}</select>` +
+        `<input class="br-birds" type="number" min="0" placeholder="عدد الطيور" value="${e.birds || ''}" />` +
+        `<input class="br-cages" type="number" min="0" placeholder="عدد الأقفاص" value="${e.cages || ''}" />` +
+        `<button type="button" class="br-del" title="حذف السلالة">✕</button>`;
+      row.querySelector('.br-del').addEventListener('click', () => {
+        row.remove();
+        if (!container.querySelector('.breed-row')) addRow();
+      });
+      container.appendChild(row);
+    }
+    container.innerHTML = '';
+    (entries && entries.length ? entries : [null]).forEach(addRow);
+    if (addBtn) addBtn.onclick = () => addRow();
+    return {
+      get entries() {
+        return [...container.querySelectorAll('.breed-row')].map((r) => ({
+          breed: r.querySelector('.br-breed').value,
+          birds: r.querySelector('.br-birds').value || 0,
+          cages: r.querySelector('.br-cages').value || 0,
+        })).filter((x) => x.breed);
+      },
+      totals() {
+        return this.entries.reduce((a, e) => ({
+          birds: a.birds + (+e.birds || 0), cages: a.cages + (+e.cages || 0),
+        }), { birds: 0, cages: 0 });
+      },
+    };
+  };
+
   // ---- count-up animation ----
   window.countUp = function (el, target, dur = 1200) {
     const start = performance.now();

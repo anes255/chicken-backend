@@ -54,6 +54,37 @@
           <div class="stat"><span class="ic">📍</span><b id="tWilayas">0</b><span>ولايات مشاركة</span></div>
         </div>
 
+        <!-- ANALYTICS -->
+        <div class="stat-grid">
+          <div class="stat"><span class="ic">🧬</span><b id="aBreeds">0</b><span>عدد السلالات</span></div>
+          <div class="stat"><span class="ic">⭐</span><b id="aTop" style="font-size:1.25rem">—</b><span>السلالة الأكثر</span></div>
+          <div class="stat"><span class="ic">📈</span><b id="aAvgBirds">0</b><span>متوسط الطيور / مشارك</span></div>
+          <div class="stat"><span class="ic">🔀</span><b id="aMulti">0</b><span>مشاركون بعدّة سلالات</span></div>
+        </div>
+
+        <!-- BY BREED -->
+        <div class="panel">
+          <h3>🧬 تحليلات حسب السلالة</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>السلالة</th><th>المشاركون</th><th>الطيور</th><th>الأقفاص</th><th style="width:30%">نسبة الطيور</th></tr></thead>
+              <tbody id="breedStats"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- BREED MANAGEMENT -->
+        <div class="panel">
+          <h3>🧾 إدارة قائمة السلالات</h3>
+          <p style="color:var(--muted);font-size:.9rem;margin-bottom:12px">السلالات التي تظهر للمشاركين في صفحة التسجيل.</p>
+          <div class="alert error" id="breedAlert"></div>
+          <div class="toolbar">
+            <input id="newBreed" placeholder="اسم سلالة جديدة..." style="flex:1;min-width:200px" />
+            <button class="btn btn-primary btn-sm" id="addBreedBtn">＋ إضافة سلالة</button>
+          </div>
+          <div class="breed-chips" id="breedChips"></div>
+        </div>
+
         <!-- BY WILAYA -->
         <div class="panel">
           <h3>📊 الإحصائيات حسب الولاية</h3>
@@ -69,8 +100,9 @@
         <div class="panel">
           <h3>🗂️ إدارة المشاركين</h3>
           <div class="toolbar">
-            <input id="search" placeholder="🔎 بحث بالاسم أو الهاتف..." style="flex:1;min-width:200px" />
+            <input id="search" placeholder="🔎 بحث بالاسم أو الهاتف..." style="flex:1;min-width:180px" />
             <select id="wilayaFilter"><option value="">كل الولايات</option></select>
+            <select id="breedFilter"><option value="">كل السلالات</option></select>
             <button class="btn btn-ghost btn-sm" id="exportBtn">⬇️ تصدير CSV</button>
           </div>
           <div class="table-wrap">
@@ -99,17 +131,15 @@
           <div class="field"><label>الاسم الكامل</label><input name="fullName" required /></div>
           <div class="field"><label>رقم الهاتف</label><input name="phone" required /></div>
         </div>
-        <div class="row-2">
-          <div class="field"><label>البريد الإلكتروني</label><input name="email" type="email" /></div>
-          <div class="field"><label>السلالة</label><input name="breed" /></div>
-        </div>
+        <div class="field"><label>البريد الإلكتروني</label><input name="email" type="email" /></div>
         <div class="row-2">
           <div class="field"><label>الولاية</label><select name="wilaya" id="mWilaya" required></select></div>
           <div class="field"><label>البلدية</label><select name="baladya" id="mBaladya" required></select></div>
         </div>
-        <div class="row-2">
-          <div class="field"><label>عدد الطيور</label><input name="numBirds" type="number" min="0" required /></div>
-          <div class="field"><label>عدد الأقفاص</label><input name="numCages" type="number" min="0" required /></div>
+        <div class="field">
+          <label>السلالات وعدد الطيور والأقفاص</label>
+          <div class="breeds-box" id="mBreedsBox"></div>
+          <button type="button" class="add-breed" id="mAddBreed">＋ إضافة سلالة</button>
         </div>
         <div class="field"><label>ملاحظات</label><textarea name="notes"></textarea></div>
         <div class="modal-actions">

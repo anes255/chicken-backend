@@ -74,20 +74,12 @@
             </div>
           </div>
 
-          <div class="row-2">
-            <div class="field">
-              <label>عدد الطيور *</label>
-              <input name="numBirds" type="number" min="0" required value="0" />
-            </div>
-            <div class="field">
-              <label>عدد الأقفاص *</label>
-              <input name="numCages" type="number" min="0" required value="0" />
-            </div>
-          </div>
-
           <div class="field">
-            <label>سلالة / نوع الطيور (اختياري)</label>
-            <input name="breed" placeholder="مثال: براهما، سيبرايت، باندا..." />
+            <label>السلالات وعدد الطيور والأقفاص *</label>
+            <p style="font-size:.82rem;color:var(--muted);margin:-2px 0 8px">أضف كل سلالة على حدة مع عدد طيورها وأقفاصها الخاص بها.</p>
+            <div class="breeds-box" id="breedsBox"></div>
+            <button type="button" class="add-breed" id="addBreed">＋ إضافة سلالة أخرى</button>
+            <div class="breeds-summary" id="breedsSummary"></div>
           </div>
 
           <div class="field">
@@ -117,11 +109,36 @@
     const alert = document.getElementById('alert');
     const form = document.getElementById('regForm');
     const btn = document.getElementById('submitBtn');
+    const summary = document.getElementById('breedsSummary');
+    let editor;
+
+    (async function () {
+      const breeds = await loadBreeds();
+      editor = makeBreedEditor({
+        container: document.getElementById('breedsBox'),
+        addBtn: document.getElementById('addBreed'),
+        breeds,
+      });
+      document.getElementById('breedsBox').addEventListener('input', updateSummary);
+      document.getElementById('addBreed').addEventListener('click', () => setTimeout(updateSummary, 0));
+      updateSummary();
+    })();
+
+    function updateSummary() {
+      if (!editor) return;
+      const t = editor.totals();
+      summary.textContent = `الإجمالي: ${t.birds} طائر · ${t.cages} قفص`;
+    }
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       alert.classList.remove('show');
       const data = Object.fromEntries(new FormData(form));
+      data.entries = editor.entries;
+      if (data.entries.length === 0) {
+        alert.textContent = 'يرجى إضافة سلالة واحدة على الأقل من القائمة.';
+        alert.classList.add('show'); return;
+      }
       if (!document.getElementById('agree').checked) {
         alert.textContent = 'يجب الموافقة على شروط المشاركة.';
         alert.classList.add('show'); return;

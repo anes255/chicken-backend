@@ -1,9 +1,12 @@
-/* Admin dashboard logic: stats, participant table, edit/delete, CSV export. */
+/* Admin dashboard: stats, analytics, per-breed breakdown, breed management,
+   participant table with search/wilaya/breed filters, edit/delete, CSV export. */
 (function () {
   if (!Auth.isLoggedIn || Auth.role !== 'admin') { location.href = 'login.html'; return; }
 
   const $ = (id) => document.getElementById(id);
   let allParticipants = [];
+  let allBreeds = [];
+  let modalEditor = null;
 
   $('logoutBtn').addEventListener('click', (e) => { e.preventDefault(); Auth.logout(); });
 
@@ -15,13 +18,16 @@
 
   async function loadAll() {
     try {
-      const [stats, list] = await Promise.all([
+      const [stats, list, breedsRes] = await Promise.all([
         api('/api/admin/stats', { auth: true }),
         api('/api/admin/participants', { auth: true }),
+        api('/api/breeds'),
       ]);
-      renderStats(stats);
       allParticipants = list.participants;
-      renderWilayaFilter();
+      allBreeds = breedsRes.breeds || [];
+      renderStats(stats);
+      renderBreedChips();
+      renderFilters();
       renderTable();
       $('loading').classList.add('hidden');
       $('content').classList.remove('hidden');
@@ -36,30 +42,95 @@
     countUp($('tBirds'), s.totals.total_birds);
     countUp($('tCages'), s.totals.total_cages);
     countUp($('tWilayas'), s.byWilaya.length);
-    const max = Math.max(1, ...s.byWilaya.map((w) => w.participants));
+
+    // analytics row
+    const a = s.analytics || {};
+    countUp($('aBreeds'), a.distinctBreeds || 0);
+    $('aTop').textContent = a.topBreed || '—';
+    $('aAvgBirds').textContent = a.avgBirdsPerParticipant != null ? a.avgBirdsPerParticipant : 0;
+    countUp($('aMulti'), a.multiBreedParticipants || 0);
+
+    // by wilaya
+    const maxW = Math.max(1, ...s.byWilaya.map((w) => w.participants));
     $('wilayaStats').innerHTML = s.byWilaya.map((w) => `
-      <tr>
-        <td><b>${esc(w.wilaya)}</b></td>
+      <tr><td><b>${esc(w.wilaya)}</b></td>
         <td><span class="badge">${w.participants}</span></td>
-        <td>${w.birds}</td>
-        <td>${w.cages}</td>
-        <td><div class="bar" style="width:${Math.round((w.participants / max) * 100)}%"></div></td>
-      </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--muted)">لا توجد بيانات بعد.</td></tr>';
+        <td>${w.birds}</td><td>${w.cages}</td>
+        <td><div class="bar" style="width:${Math.round((w.participants / maxW) * 100)}%"></div></td></tr>`
+    ).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--muted)">لا توجد بيانات بعد.</td></tr>';
+
+    // by breed
+    const maxB = Math.max(1, ...(s.byBreed || []).map((b) => b.birds));
+    $('breedStats').innerHTML = (s.byBreed || []).map((b) => `
+      <tr><td><b>${esc(b.breed)}</b></td>
+        <td><span class="badge beige">${b.participants}</span></td>
+        <td>${b.birds}</td><td>${b.cages}</td>
+        <td><div class="bar" style="width:${Math.round((b.birds / maxB) * 100)}%"></div></td></tr>`
+    ).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--muted)">لا توجد بيانات بعد.</td></tr>';
   }
 
-  function renderWilayaFilter() {
+  // ---- breed management ----
+  function renderBreedChips() {
+    $('breedChips').innerHTML = allBreeds.map((b) =>
+      `<span class="badge" style="display:inline-flex;align-items:center;gap:6px">${esc(b.name)}
+        <button data-delbreed="${b.id}" title="حذف" style="border:0;background:transparent;color:#fff;cursor:pointer;font-weight:800">✕</button></span>`
+    ).join('') || '<span style="color:var(--muted)">لا توجد سلالات.</span>';
+    $('breedChips').querySelectorAll('[data-delbreed]').forEach((btn) =>
+      btn.addEventListener('click', () => delBreed(btn.getAttribute('data-delbreed'))));
+  }
+
+  $('addBreedBtn').addEventListener('click', async () => {
+    const name = $('newBreed').value.trim();
+    $('breedAlert').classList.remove('show');
+    if (!name) return;
+    try {
+      await api('/api/admin/breeds', { method: 'POST', auth: true, body: { name } });
+      $('newBreed').value = '';
+      await loadAll();
+    } catch (e) {
+      $('breedAlert').textContent = e.message;
+      $('breedAlert').classList.add('show');
+    }
+  });
+  $('newBreed').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); $('addBreedBtn').click(); } });
+
+  async function delBreed(id) {
+    const b = allBreeds.find((x) => String(x.id) === String(id));
+    if (!confirm(`حذف السلالة "${b ? b.name : ''}" من القائمة؟`)) return;
+    try { await api('/api/admin/breeds/' + id, { method: 'DELETE', auth: true }); await loadAll(); }
+    catch (e) { alert(e.message); }
+  }
+
+  // ---- filters ----
+  function renderFilters() {
     const wilayas = [...new Set(allParticipants.map((p) => p.wilaya))].sort();
     $('wilayaFilter').innerHTML = '<option value="">كل الولايات</option>' +
       wilayas.map((w) => `<option value="${esc(w)}">${esc(w)}</option>`).join('');
+    // breed filter from the managed list + any breed found on participants
+    const used = new Set();
+    allParticipants.forEach((p) => (p.entries || []).forEach((e) => used.add(e.breed)));
+    const names = [...new Set([...allBreeds.map((b) => b.name), ...used])].filter(Boolean).sort();
+    $('breedFilter').innerHTML = '<option value="">كل السلالات</option>' +
+      names.map((n) => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
   }
 
   function filtered() {
     const q = $('search').value.trim().toLowerCase();
     const w = $('wilayaFilter').value;
+    const br = $('breedFilter').value;
     return allParticipants.filter((p) =>
       (!w || p.wilaya === w) &&
+      (!br || (p.entries || []).some((e) => e.breed === br)) &&
       (!q || (p.fullName || '').toLowerCase().includes(q) || (p.phone || '').includes(q))
     );
+  }
+
+  function breedChipsHtml(p) {
+    const entries = p.entries && p.entries.length ? p.entries : [];
+    if (!entries.length) return esc(p.breed) || '—';
+    return '<div class="breed-chips">' + entries.map((e) =>
+      `<span class="badge" title="${e.birds} طائر · ${e.cages} قفص">${esc(e.breed)} (${e.birds}/${e.cages})</span>`
+    ).join('') + '</div>';
   }
 
   function renderTable() {
@@ -72,16 +143,15 @@
         <td>${esc(p.phone)}</td>
         <td><span class="badge beige">${esc(p.wilaya)}</span></td>
         <td>${esc(p.baladya)}</td>
-        <td>${p.numBirds}</td>
-        <td>${p.numCages}</td>
-        <td>${esc(p.breed) || '—'}</td>
+        <td><b>${p.numBirds}</b></td>
+        <td><b>${p.numCages}</b></td>
+        <td>${breedChipsHtml(p)}</td>
         <td>${fmtDate(p.createdAt)}</td>
         <td class="actions-cell">
           <button class="btn btn-gold btn-sm" data-edit="${p.id}">تعديل</button>
           <button class="btn btn-danger btn-sm" data-del="${p.id}">حذف</button>
         </td>
       </tr>`).join('');
-
     $('usersBody').querySelectorAll('[data-edit]').forEach((b) =>
       b.addEventListener('click', () => openEdit(b.getAttribute('data-edit'))));
     $('usersBody').querySelectorAll('[data-del]').forEach((b) =>
@@ -90,12 +160,12 @@
 
   $('search').addEventListener('input', renderTable);
   $('wilayaFilter').addEventListener('change', renderTable);
+  $('breedFilter').addEventListener('change', renderTable);
 
   // ---- edit modal ----
   const modalBg = $('modalBg');
   const editForm = $('editForm');
   const modalAlert = $('modalAlert');
-  fillWilayas($('mWilaya'), $('mBaladya'));
 
   function openEdit(id) {
     const p = allParticipants.find((x) => String(x.id) === String(id));
@@ -105,11 +175,12 @@
     editForm.fullName.value = p.fullName || '';
     editForm.phone.value = p.phone || '';
     editForm.email.value = p.email || '';
-    editForm.breed.value = p.breed || '';
-    editForm.numBirds.value = p.numBirds;
-    editForm.numCages.value = p.numCages;
     editForm.notes.value = p.notes || '';
     fillWilayas($('mWilaya'), $('mBaladya'), p.wilaya, p.baladya);
+    modalEditor = makeBreedEditor({
+      container: $('mBreedsBox'), addBtn: $('mAddBreed'), breeds: allBreeds,
+      entries: p.entries && p.entries.length ? p.entries : [{ breed: p.breed || '', birds: p.numBirds, cages: p.numCages }],
+    });
     modalBg.classList.add('open');
   }
   function closeEdit() { modalBg.classList.remove('open'); }
@@ -119,6 +190,8 @@
   editForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const data = Object.fromEntries(new FormData(editForm));
+    data.entries = modalEditor ? modalEditor.entries : [];
+    if (data.entries.length === 0) { modalAlert.textContent = 'يرجى إضافة سلالة واحدة على الأقل.'; modalAlert.classList.add('show'); return; }
     try {
       await api('/api/admin/participants/' + data.id, { method: 'PUT', auth: true, body: data });
       closeEdit();
@@ -132,20 +205,19 @@
   async function del(id) {
     const p = allParticipants.find((x) => String(x.id) === String(id));
     if (!confirm(`حذف المشارك "${p ? p.fullName : ''}"؟ لا يمكن التراجع.`)) return;
-    try {
-      await api('/api/admin/participants/' + id, { method: 'DELETE', auth: true });
-      await loadAll();
-    } catch (err) { alert(err.message); }
+    try { await api('/api/admin/participants/' + id, { method: 'DELETE', auth: true }); await loadAll(); }
+    catch (err) { alert(err.message); }
   }
 
   // ---- CSV export ----
   $('exportBtn').addEventListener('click', () => {
     const rows = filtered();
-    const head = ['الاسم', 'الهاتف', 'البريد', 'الولاية', 'البلدية', 'عدد الطيور', 'عدد الأقفاص', 'السلالة', 'ملاحظات', 'التاريخ'];
-    const csv = [head.join(',')].concat(rows.map((p) =>
-      [p.fullName, p.phone, p.email, p.wilaya, p.baladya, p.numBirds, p.numCages, p.breed, p.notes, fmtDate(p.createdAt)]
-        .map((v) => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`).join(',')
-    )).join('\n');
+    const head = ['الاسم', 'الهاتف', 'البريد', 'الولاية', 'البلدية', 'السلالات (طيور/أقفاص)', 'إجمالي الطيور', 'إجمالي الأقفاص', 'ملاحظات', 'التاريخ'];
+    const csv = [head.join(',')].concat(rows.map((p) => {
+      const breeds = (p.entries || []).map((e) => `${e.breed}:${e.birds}/${e.cages}`).join(' | ') || p.breed || '';
+      return [p.fullName, p.phone, p.email, p.wilaya, p.baladya, breeds, p.numBirds, p.numCages, p.notes, fmtDate(p.createdAt)]
+        .map((v) => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`).join(',');
+    })).join('\n');
     const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);

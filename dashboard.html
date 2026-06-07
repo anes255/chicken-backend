@@ -54,17 +54,16 @@
               <div class="field"><label>الاسم الكامل</label><input name="fullName" required /></div>
               <div class="field"><label>رقم الهاتف</label><input id="phoneField" disabled /></div>
             </div>
-            <div class="row-2">
-              <div class="field"><label>البريد الإلكتروني</label><input name="email" type="email" /></div>
-              <div class="field"><label>سلالة / نوع الطيور</label><input name="breed" /></div>
-            </div>
+            <div class="field"><label>البريد الإلكتروني</label><input name="email" type="email" /></div>
             <div class="row-2">
               <div class="field"><label>الولاية</label><select name="wilaya" id="wilaya" required></select></div>
               <div class="field"><label>البلدية</label><select name="baladya" id="baladya" required></select></div>
             </div>
-            <div class="row-2">
-              <div class="field"><label>عدد الطيور</label><input name="numBirds" type="number" min="0" required /></div>
-              <div class="field"><label>عدد الأقفاص</label><input name="numCages" type="number" min="0" required /></div>
+            <div class="field">
+              <label>السلالات وعدد الطيور والأقفاص</label>
+              <div class="breeds-box" id="breedsBox"></div>
+              <button type="button" class="add-breed" id="addBreed">＋ إضافة سلالة أخرى</button>
+              <div class="breeds-summary" id="breedsSummary"></div>
             </div>
             <div class="field"><label>ملاحظات</label><textarea name="notes"></textarea></div>
             <button class="btn btn-primary" type="submit" id="saveBtn">حفظ التعديلات</button>
@@ -84,10 +83,18 @@
     const $ = (id) => document.getElementById(id);
     const form = $('profileForm');
     const alert = $('alert');
+    const summary = $('breedsSummary');
+    let editor;
+
+    function updateSummary() {
+      if (!editor) return;
+      const t = editor.totals();
+      summary.textContent = `الإجمالي: ${t.birds} طائر · ${t.cages} قفص`;
+    }
 
     (async function load() {
       try {
-        const { user } = await api('/api/me', { auth: true });
+        const [{ user }, breeds] = await Promise.all([api('/api/me', { auth: true }), loadBreeds()]);
         $('welcomeName').textContent = user.fullName || '';
         $('sBirds').textContent = user.numBirds;
         $('sCages').textContent = user.numCages;
@@ -96,11 +103,15 @@
         form.fullName.value = user.fullName || '';
         $('phoneField').value = user.phone || '';
         form.email.value = user.email || '';
-        form.breed.value = user.breed || '';
-        form.numBirds.value = user.numBirds;
-        form.numCages.value = user.numCages;
         form.notes.value = user.notes || '';
         fillWilayas($('wilaya'), $('baladya'), user.wilaya, user.baladya);
+        editor = makeBreedEditor({
+          container: $('breedsBox'), addBtn: $('addBreed'), breeds,
+          entries: user.entries && user.entries.length ? user.entries : [{ breed: user.breed || '', birds: user.numBirds, cages: user.numCages }],
+        });
+        $('breedsBox').addEventListener('input', updateSummary);
+        $('addBreed').addEventListener('click', () => setTimeout(updateSummary, 0));
+        updateSummary();
         $('loading').classList.add('hidden');
         $('content').classList.remove('hidden');
       } catch (e) {
@@ -112,16 +123,21 @@
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = $('saveBtn');
+      const body = Object.fromEntries(new FormData(form));
+      body.entries = editor.entries;
+      if (body.entries.length === 0) {
+        alert.className = 'alert error show'; alert.textContent = 'يرجى إضافة سلالة واحدة على الأقل.'; return;
+      }
       btn.disabled = true; btn.textContent = 'جارٍ الحفظ...';
       alert.classList.remove('show');
       try {
-        const { user } = await api('/api/me', { method: 'PUT', auth: true, body: Object.fromEntries(new FormData(form)) });
+        const { user } = await api('/api/me', { method: 'PUT', auth: true, body });
         $('sBirds').textContent = user.numBirds;
         $('sCages').textContent = user.numCages;
         $('sWilaya').textContent = user.wilaya;
         $('sBaladya').textContent = user.baladya;
+        alert.className = 'alert success show';
         alert.textContent = '✓ تم حفظ التعديلات بنجاح.';
-        alert.classList.add('show');
       } catch (err) {
         alert.className = 'alert error show';
         alert.textContent = err.message;
