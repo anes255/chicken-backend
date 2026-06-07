@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240" role="img" aria-label="Brahma Club Algérie">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3a6b46"/>
+      <stop offset="1" stop-color="#173d27"/>
+    </linearGradient>
+    <linearGradient id="bcream" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f6efdd"/>
+      <stop offset="1" stop-color="#e4d4ae"/>
+    </linearGradient>
+  </defs>
+  <circle cx="120" cy="120" r="116" fill="url(#bg)" stroke="#d8bd7e" stroke-width="6"/>
+  <circle cx="120" cy="120" r="98" fill="#1d4a30"/>
+  <!-- brahma hen silhouette -->
+  <g transform="translate(58,58)">
+    <path d="M70 8c10-3 21 3 24 13 9 0 16 8 14 17 8 3 11 13 6 20-3 4-8 6-13 5 4 7 3 16-3 22 5 6 5 15-1 21-4 4-9 5-14 4 1 6-2 12-7 15-9-3-15-9-19-17-12 0-23-7-27-18-9-2-15-12-12-21 2-7 8-11 15-11-3-9 2-19 11-22-1-9 6-18 16-19 3-4 6-7 10-9z" fill="url(#bcream)"/>
+    <circle cx="92" cy="44" r="3.4" fill="#173d27"/>
+    <path d="M110 40c5 1 9 6 9 11M104 30c5-1 11 2 13 7" stroke="#d8bd7e" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M30 86c-5 9-4 21 3 29M48 96c-4 8-3 17 2 24M66 100c-3 7-2 15 2 21" stroke="#c9ad6e" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M40 70c-8 2-13 11-11 19" stroke="#c9ad6e" stroke-width="2.5" fill="none"/>
+  </g>
+  <text x="120" y="206" text-anchor="middle" font-family="Georgia, serif" font-size="20" font-weight="700" letter-spacing="2" fill="#f6efdd">BRAHMA CLUB</text>
+</svg>

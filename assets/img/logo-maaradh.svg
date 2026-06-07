@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240" role="img" aria-label="المعرض الوطني لدجاج الزينة">
+  <defs>
+    <linearGradient id="mg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2f7d4f"/>
+      <stop offset="1" stop-color="#1d5235"/>
+    </linearGradient>
+    <linearGradient id="mgold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f3d9a0"/>
+      <stop offset="1" stop-color="#cda860"/>
+    </linearGradient>
+  </defs>
+  <circle cx="120" cy="120" r="116" fill="url(#mg)" stroke="url(#mgold)" stroke-width="6"/>
+  <circle cx="120" cy="120" r="100" fill="none" stroke="#f3d9a0" stroke-width="1.5" stroke-dasharray="3 5" opacity="0.7"/>
+  <!-- rooster -->
+  <g transform="translate(70,72)">
+    <path d="M52 12c8-6 18-4 20 4 6-2 12 2 11 9 7 1 10 8 6 14-2 3-6 4-9 3 3 8-2 17-11 18-2 9-11 15-21 13-3 7-12 11-20 7-7-3-10-12-6-19-8-2-13-11-9-19 2-5 7-7 12-7-1-7 4-13 11-13 3-7 11-10 18-7 1-1 2-3 5-5l3 2z" fill="url(#mgold)"/>
+    <circle cx="40" cy="36" r="3.2" fill="#1d5235"/>
+    <path d="M22 44c-6 8-7 22-2 34 3 7 10 13 18 15-10 1-21-4-26-14-5-9-3-25 10-35z" fill="#f3d9a0"/>
+    <path d="M70 30c10 2 18 11 18 22 0 6-2 11-6 15 2-9-1-19-8-26-2-4-2-8-4-11z" fill="#e7c277"/>
+    <path d="M44 96c-3 8-2 16 2 22M58 98c-2 7-1 14 3 20" stroke="#cda860" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </g>
+  <!-- ribbon star -->
+  <path d="M120 198l5 11 12 1-9 8 3 12-11-6-11 6 3-12-9-8 12-1z" fill="url(#mgold)"/>
+</svg>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>حسابي — المعرض الوطني لدجاج الزينة</title>
+  <link rel="icon" href="assets/img/logo-maaradh.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <div class="bg-decor"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="index.html">
+        <img src="assets/img/logo-maaradh.svg" alt="شعار المعرض" />
+        <span class="titles"><b>المعرض الوطني لدجاج الزينة</b><span>نادي البراهما الجزائري — Brahma Club</span></span>
+      </a>
+      <button class="nav-toggle" aria-label="القائمة">☰</button>
+      <nav class="nav-links">
+        <a href="index.html">الرئيسية</a>
+        <a href="conditions.html">شروط المشاركة</a>
+        <span data-auth-slot style="display:contents"></span>
+      </nav>
+    </div>
+  </header>
+
+  <section class="page-hero">
+    <div class="container">
+      <h1>مرحباً <span id="welcomeName"></span> 👋</h1>
+      <p>هذه بيانات مشاركتك في المعرض الوطني لدجاج الزينة.</p>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="container">
+      <div id="loading" class="center"><div class="spinner"></div></div>
+
+      <div id="content" class="hidden">
+        <div class="stat-grid">
+          <div class="stat"><span class="ic">🐔</span><b id="sBirds">0</b><span>عدد الطيور</span></div>
+          <div class="stat"><span class="ic">📦</span><b id="sCages">0</b><span>عدد الأقفاص</span></div>
+          <div class="stat"><span class="ic">📍</span><b id="sWilaya" style="font-size:1.3rem">—</b><span>الولاية</span></div>
+          <div class="stat"><span class="ic">🏘️</span><b id="sBaladya" style="font-size:1.3rem">—</b><span>البلدية</span></div>
+        </div>
+
+        <div class="panel">
+          <h3>✏️ تعديل بياناتي</h3>
+          <div class="alert success" id="alert"></div>
+          <form id="profileForm">
+            <div class="row-2">
+              <div class="field"><label>الاسم الكامل</label><input name="fullName" required /></div>
+              <div class="field"><label>رقم الهاتف</label><input id="phoneField" disabled /></div>
+            </div>
+            <div class="row-2">
+              <div class="field"><label>البريد الإلكتروني</label><input name="email" type="email" /></div>
+              <div class="field"><label>سلالة / نوع الطيور</label><input name="breed" /></div>
+            </div>
+            <div class="row-2">
+              <div class="field"><label>الولاية</label><select name="wilaya" id="wilaya" required></select></div>
+              <div class="field"><label>البلدية</label><select name="baladya" id="baladya" required></select></div>
+            </div>
+            <div class="row-2">
+              <div class="field"><label>عدد الطيور</label><input name="numBirds" type="number" min="0" required /></div>
+              <div class="field"><label>عدد الأقفاص</label><input name="numCages" type="number" min="0" required /></div>
+            </div>
+            <div class="field"><label>ملاحظات</label><textarea name="notes"></textarea></div>
+            <button class="btn btn-primary" type="submit" id="saveBtn">حفظ التعديلات</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/main.js"></script>
+  <script>
+    if (!Auth.isLoggedIn) location.href = 'login.html';
+    if (Auth.role === 'admin') location.href = 'admin.html';
+
+    const $ = (id) => document.getElementById(id);
+    const form = $('profileForm');
+    const alert = $('alert');
+
+    (async function load() {
+      try {
+        const { user } = await api('/api/me', { auth: true });
+        $('welcomeName').textContent = user.fullName || '';
+        $('sBirds').textContent = user.numBirds;
+        $('sCages').textContent = user.numCages;
+        $('sWilaya').textContent = user.wilaya;
+        $('sBaladya').textContent = user.baladya;
+        form.fullName.value = user.fullName || '';
+        $('phoneField').value = user.phone || '';
+        form.email.value = user.email || '';
+        form.breed.value = user.breed || '';
+        form.numBirds.value = user.numBirds;
+        form.numCages.value = user.numCages;
+        form.notes.value = user.notes || '';
+        fillWilayas($('wilaya'), $('baladya'), user.wilaya, user.baladya);
+        $('loading').classList.add('hidden');
+        $('content').classList.remove('hidden');
+      } catch (e) {
+        if (String(e.message).includes('الجلسة') || String(e.message).includes('الدخول')) Auth.logout();
+        $('loading').innerHTML = '<p style="color:var(--danger)">' + e.message + '</p>';
+      }
+    })();
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = $('saveBtn');
+      btn.disabled = true; btn.textContent = 'جارٍ الحفظ...';
+      alert.classList.remove('show');
+      try {
+        const { user } = await api('/api/me', { method: 'PUT', auth: true, body: Object.fromEntries(new FormData(form)) });
+        $('sBirds').textContent = user.numBirds;
+        $('sCages').textContent = user.numCages;
+        $('sWilaya').textContent = user.wilaya;
+        $('sBaladya').textContent = user.baladya;
+        alert.textContent = '✓ تم حفظ التعديلات بنجاح.';
+        alert.classList.add('show');
+      } catch (err) {
+        alert.className = 'alert error show';
+        alert.textContent = err.message;
+      } finally {
+        btn.disabled = false; btn.textContent = 'حفظ التعديلات';
+      }
+    });
+  </script>
+</body>
+</html>

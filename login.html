@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>تسجيل الدخول — المعرض الوطني لدجاج الزينة</title>
+  <link rel="icon" href="assets/img/logo-maaradh.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <div class="bg-decor"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="index.html">
+        <img src="assets/img/logo-maaradh.svg" alt="شعار المعرض" />
+        <span class="titles"><b>المعرض الوطني لدجاج الزينة</b><span>نادي البراهما الجزائري — Brahma Club</span></span>
+      </a>
+      <button class="nav-toggle" aria-label="القائمة">☰</button>
+      <nav class="nav-links">
+        <a href="index.html">الرئيسية</a>
+        <a href="index.html#goals">الأهداف</a>
+        <a href="conditions.html">شروط المشاركة</a>
+        <a href="register.html">التسجيل</a>
+        <span data-auth-slot style="display:contents"></span>
+      </nav>
+    </div>
+  </header>
+
+  <section class="sec">
+    <div class="container">
+      <div class="form-wrap">
+        <div class="form-head">
+          <img src="assets/img/logo-brahma.svg" alt="شعار نادي البراهما" />
+          <h2>تسجيل الدخول</h2>
+          <p>ادخل إلى حسابك لإدارة بيانات مشاركتك.</p>
+        </div>
+
+        <div class="alert error" id="alert"></div>
+
+        <form id="loginForm">
+          <div class="field">
+            <label>رقم الهاتف</label>
+            <input name="phone" required inputmode="tel" placeholder="رقم هاتفك" />
+          </div>
+          <div class="field">
+            <label>كلمة المرور</label>
+            <input name="password" type="password" required placeholder="كلمة المرور" />
+          </div>
+          <button class="btn btn-primary btn-block" type="submit" id="submitBtn">دخول</button>
+          <p class="form-foot">ليس لديك حساب؟ <a href="register.html">سجّل الآن</a></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/main.js"></script>
+  <script>
+    if (Auth.isLoggedIn) location.href = Auth.role === 'admin' ? 'admin.html' : 'dashboard.html';
+    const alert = document.getElementById('alert');
+    const form = document.getElementById('loginForm');
+    const btn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      alert.classList.remove('show');
+      btn.disabled = true; btn.textContent = 'جارٍ الدخول...';
+      try {
+        const res = await api('/api/login', { method: 'POST', body: Object.fromEntries(new FormData(form)) });
+        Auth.save(res);
+        location.href = res.role === 'admin' ? 'admin.html' : 'dashboard.html';
+      } catch (err) {
+        alert.textContent = err.message;
+        alert.classList.add('show');
+        btn.disabled = false; btn.textContent = 'دخول';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>لوحة الإدارة — المعرض الوطني لدجاج الزينة</title>
+  <link rel="icon" href="assets/img/logo-maaradh.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <style>
+    .modal-bg{position:fixed;inset:0;background:rgba(20,53,36,.5);backdrop-filter:blur(4px);display:none;place-items:center;z-index:100;padding:18px}
+    .modal-bg.open{display:grid}
+    .modal{background:#fff;border-radius:var(--radius);max-width:640px;width:100%;max-height:92vh;overflow:auto;padding:28px;animation:pop .3s ease}
+    .modal h3{color:var(--green-800);margin-bottom:16px}
+    .modal-actions{display:flex;gap:10px;justify-content:flex-start;margin-top:18px}
+    .actions-cell{display:flex;gap:6px}
+  </style>
+</head>
+<body>
+  <div class="bg-decor"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="index.html">
+        <img src="assets/img/logo-brahma.svg" alt="شعار نادي البراهما" />
+        <span class="titles"><b>لوحة إدارة المعرض</b><span>نادي البراهما الجزائري — Admin</span></span>
+      </a>
+      <button class="nav-toggle" aria-label="القائمة">☰</button>
+      <nav class="nav-links">
+        <a href="index.html">الموقع</a>
+        <a href="#" id="logoutBtn">خروج</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="page-hero">
+    <div class="container">
+      <h1>لوحة تحكّم الإدارة</h1>
+      <p>إحصائيات المعرض وإدارة المشاركين — المعرض الوطني لدجاج الزينة</p>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="container">
+      <div id="loading" class="center"><div class="spinner"></div></div>
+
+      <div id="content" class="hidden">
+        <!-- STATS -->
+        <div class="stat-grid">
+          <div class="stat"><span class="ic">👥</span><b id="tParticipants">0</b><span>إجمالي المشاركين</span></div>
+          <div class="stat"><span class="ic">🐔</span><b id="tBirds">0</b><span>إجمالي الطيور</span></div>
+          <div class="stat"><span class="ic">📦</span><b id="tCages">0</b><span>إجمالي الأقفاص</span></div>
+          <div class="stat"><span class="ic">📍</span><b id="tWilayas">0</b><span>ولايات مشاركة</span></div>
+        </div>
+
+        <!-- BY WILAYA -->
+        <div class="panel">
+          <h3>📊 الإحصائيات حسب الولاية</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>الولاية</th><th>المشاركون</th><th>الطيور</th><th>الأقفاص</th><th style="width:30%">النسبة</th></tr></thead>
+              <tbody id="wilayaStats"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- PARTICIPANTS -->
+        <div class="panel">
+          <h3>🗂️ إدارة المشاركين</h3>
+          <div class="toolbar">
+            <input id="search" placeholder="🔎 بحث بالاسم أو الهاتف..." style="flex:1;min-width:200px" />
+            <select id="wilayaFilter"><option value="">كل الولايات</option></select>
+            <button class="btn btn-ghost btn-sm" id="exportBtn">⬇️ تصدير CSV</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th>#</th><th>الاسم</th><th>الهاتف</th><th>الولاية</th><th>البلدية</th>
+                <th>الطيور</th><th>الأقفاص</th><th>السلالة</th><th>التاريخ</th><th>إجراءات</th>
+              </tr></thead>
+              <tbody id="usersBody"></tbody>
+            </table>
+          </div>
+          <p id="emptyMsg" class="center muted hidden mt" style="color:var(--muted)">لا يوجد مشاركون بعد.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EDIT MODAL -->
+  <div class="modal-bg" id="modalBg">
+    <div class="modal">
+      <h3>تعديل بيانات المشارك</h3>
+      <div class="alert error" id="modalAlert"></div>
+      <form id="editForm">
+        <input type="hidden" name="id" />
+        <div class="row-2">
+          <div class="field"><label>الاسم الكامل</label><input name="fullName" required /></div>
+          <div class="field"><label>رقم الهاتف</label><input name="phone" required /></div>
+        </div>
+        <div class="row-2">
+          <div class="field"><label>البريد الإلكتروني</label><input name="email" type="email" /></div>
+          <div class="field"><label>السلالة</label><input name="breed" /></div>
+        </div>
+        <div class="row-2">
+          <div class="field"><label>الولاية</label><select name="wilaya" id="mWilaya" required></select></div>
+          <div class="field"><label>البلدية</label><select name="baladya" id="mBaladya" required></select></div>
+        </div>
+        <div class="row-2">
+          <div class="field"><label>عدد الطيور</label><input name="numBirds" type="number" min="0" required /></div>
+          <div class="field"><label>عدد الأقفاص</label><input name="numCages" type="number" min="0" required /></div>
+        </div>
+        <div class="field"><label>ملاحظات</label><textarea name="notes"></textarea></div>
+        <div class="modal-actions">
+          <button class="btn btn-primary" type="submit">حفظ</button>
+          <button class="btn btn-ghost" type="button" id="closeModal">إلغاء</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/main.js"></script>
+  <script src="assets/js/admin.js"></script>
+</body>
+</html>
