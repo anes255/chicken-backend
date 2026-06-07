@@ -1,11 +1,10 @@
 /* =========================================================================
  *  API endpoint configuration
  *  -------------------------------------------------------------------------
- *  After you deploy the backend (`chicken` repo) to Vercel, copy its URL
- *  (e.g. https://chicken-xxxx.vercel.app) and paste it below as BACKEND_URL.
+ *  BACKEND_URL points at the deployed backend (the `chicken` repo on Render).
  *  Local development (localhost) automatically targets http://localhost:4000.
  * ========================================================================= */
-const BACKEND_URL = 'https://chicken-backend.vercel.app'; // ← CHANGE THIS to your deployed backend URL
+const BACKEND_URL = 'https://chicken-xox5.onrender.com'; // ← deployed backend (Render)
 
 window.API_BASE = (function () {
   const host = location.hostname;
