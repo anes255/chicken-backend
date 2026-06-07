@@ -1,11 +1,14 @@
-/* API base URL. When the frontend is served from the same host as the API
- * during local dev, set this to the backend port. In production set it to the
- * deployed backend URL (e.g. https://chicken-xxxx.onrender.com). */
+/* =========================================================================
+ *  API endpoint configuration
+ *  -------------------------------------------------------------------------
+ *  After you deploy the backend (`chicken` repo) to Vercel, copy its URL
+ *  (e.g. https://chicken-xxxx.vercel.app) and paste it below as BACKEND_URL.
+ *  Local development (localhost) automatically targets http://localhost:4000.
+ * ========================================================================= */
+const BACKEND_URL = 'https://chicken-backend.vercel.app'; // ← CHANGE THIS to your deployed backend URL
+
 window.API_BASE = (function () {
   const host = location.hostname;
-  if (host === 'localhost' || host === '127.0.0.1') {
-    return 'http://localhost:4000';
-  }
-  // ↓↓↓ CHANGE THIS to your deployed backend URL after deploying the `chicken` repo.
-  return 'https://chicken-backend.onrender.com';
+  if (host === 'localhost' || host === '127.0.0.1') return 'http://localhost:4000';
+  return BACKEND_URL.replace(/\/$/, '');
 })();
