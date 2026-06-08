@@ -48,9 +48,12 @@
         const dash = Auth.role === 'admin' ? 'admin.html' : 'dashboard.html';
         authSlot.innerHTML =
           `<a href="${dash}">${Auth.role === 'admin' ? 'لوحة الإدارة' : 'حسابي'}</a>` +
-          `<a href="#" id="logoutBtn">خروج</a>`;
+          `<a href="#" id="logoutBtn" class="btn btn-gold btn-sm">خروج</a>`;
         const lb = document.getElementById('logoutBtn');
         if (lb) lb.addEventListener('click', (e) => { e.preventDefault(); Auth.logout(); });
+        // hide the standalone login/register nav links when signed in
+        document.querySelectorAll('.nav-links > a[href="register.html"], .nav-links > a[href="login.html"]')
+          .forEach((a) => { a.style.display = 'none'; });
       } else {
         authSlot.innerHTML =
           `<a href="login.html">دخول</a>` +
