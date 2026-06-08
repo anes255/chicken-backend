@@ -100,7 +100,7 @@
         `<select class="br-breed" aria-label="السلالة">${options(e.breed)}</select>` +
         `<input class="br-birds" type="number" min="0" placeholder="عدد الطيور" value="${e.birds || ''}" />` +
         `<input class="br-cages" type="number" min="0" placeholder="عدد الأقفاص" value="${e.cages || ''}" />` +
-        `<button type="button" class="br-del" title="حذف السلالة">✕</button>`;
+        `<button type="button" class="br-del" title="حذف السلالة">${window.icon ? window.icon('x') : '×'}</button>`;
       row.querySelector('.br-del').addEventListener('click', () => {
         row.remove();
         if (!container.querySelector('.breed-row')) addRow();

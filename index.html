@@ -19,7 +19,7 @@
         <img src="assets/img/exhibition-logo.jpg" onerror="this.onerror=null;this.src=&#39;assets/img/exhibition-logo.jpg&#39;" alt="شعار المعرض" />
         <span class="titles"><b>المعرض الوطني لدجاج الزينة</b><span>نادي البراهما الجزائري — Brahma Club</span></span>
       </a>
-      <button class="nav-toggle" aria-label="القائمة">☰</button>
+      <button class="nav-toggle" aria-label="القائمة" data-icon="menu"></button>
       <nav class="nav-links">
         <a href="index.html">الرئيسية</a>
         <a href="index.html#goals">الأهداف</a>
@@ -70,9 +70,9 @@
         <p>يهدف المعرض إلى تشجيع تربية دجاج الزينة والمحافظة على السلالات المختلفة، وجمع المربين والهواة من كل ولايات الوطن لتبادل الخبرات في جوّ من المنافسة الشريفة.</p>
       </div>
       <div class="grid grid-3">
-        <div class="card reveal"><div class="ic">🐔</div><h3>سلالات نادرة</h3><p>التعريف بالسلالات المحلية والعالمية لدجاج الزينة والحفاظ عليها.</p></div>
-        <div class="card reveal"><div class="ic">🤝</div><h3>تبادل الخبرات</h3><p>دعم التواصل بين المربين والجمعيات والنوادي المهتمة بتربية الطيور.</p></div>
-        <div class="card reveal"><div class="ic">🏆</div><h3>منافسة شريفة</h3><p>تحفيز المربين على تحسين جودة الإنتاج واكتشاف المواهب الجديدة.</p></div>
+        <div class="card reveal"><div class="ic" data-icon="feather"></div><h3>سلالات نادرة</h3><p>التعريف بالسلالات المحلية والعالمية لدجاج الزينة والحفاظ عليها.</p></div>
+        <div class="card reveal"><div class="ic" data-icon="share"></div><h3>تبادل الخبرات</h3><p>دعم التواصل بين المربين والجمعيات والنوادي المهتمة بتربية الطيور.</p></div>
+        <div class="card reveal"><div class="ic" data-icon="award"></div><h3>منافسة شريفة</h3><p>تحفيز المربين على تحسين جودة الإنتاج واكتشاف المواهب الجديدة.</p></div>
       </div>
     </div>
   </section>
@@ -130,22 +130,23 @@
 
   <script src="assets/js/config.js"></script>
   <script src="assets/js/data.js"></script>
+  <script src="assets/js/icons.js"></script>
   <script src="assets/js/main.js"></script>
   <script>
     document.getElementById('yr').textContent = new Date().getFullYear();
     const GOALS = [
-      ['تشجيع تربية دجاج الزينة والمحافظة على السلالات المختلفة.','🐓'],
-      ['جمع المربين والهواة من مختلف ولايات الوطن وتبادل الخبرات فيما بينهم.','🌍'],
-      ['التعريف بالسلالات المحلية والعالمية لدجاج الزينة، ونشر ثقافة التربية السليمة والعناية الصحية بالطيور.','📚'],
-      ['تشجيع المنافسة الشريفة بين المربين وتحفيزهم على تحسين جودة الإنتاج.','🏅'],
-      ['اكتشاف المواهب والخبرات الجديدة في مجال تربية دجاج الزينة.','🔎'],
-      ['دعم التواصل بين المربين والجمعيات والنوادي المهتمة بتربية الطيور.','🤝'],
-      ['المساهمة في تطوير تربية دجاج الزينة كنشاط ثقافي وترفيهي واقتصادي.','📈'],
-      ['إبراز جهود المربين الجزائريين والتعريف بإنجازاتهم.','🇩🇿'],
-      ['ترسيخ روح التعاون والصداقة بين المشاركين من مختلف أنحاء الوطن.','💚'],
+      ['تشجيع تربية دجاج الزينة والمحافظة على السلالات المختلفة.','feather'],
+      ['جمع المربين والهواة من مختلف ولايات الوطن وتبادل الخبرات فيما بينهم.','globe'],
+      ['التعريف بالسلالات المحلية والعالمية لدجاج الزينة، ونشر ثقافة التربية السليمة والعناية الصحية بالطيور.','book'],
+      ['تشجيع المنافسة الشريفة بين المربين وتحفيزهم على تحسين جودة الإنتاج.','award'],
+      ['اكتشاف المواهب والخبرات الجديدة في مجال تربية دجاج الزينة.','search'],
+      ['دعم التواصل بين المربين والجمعيات والنوادي المهتمة بتربية الطيور.','share'],
+      ['المساهمة في تطوير تربية دجاج الزينة كنشاط ثقافي وترفيهي واقتصادي.','trending'],
+      ['إبراز جهود المربين الجزائريين والتعريف بإنجازاتهم.','flag'],
+      ['ترسيخ روح التعاون والصداقة بين المشاركين من مختلف أنحاء الوطن.','heart'],
     ];
     document.getElementById('goalsGrid').innerHTML = GOALS.map((g, i) =>
-      `<div class="card reveal"><span class="num">${String(i + 1).padStart(2, '0')}</span><div class="ic">${g[1]}</div><p style="margin-top:8px;color:var(--ink);font-weight:600">${g[0]}</p></div>`
+      `<div class="card reveal"><span class="num">${String(i + 1).padStart(2, '0')}</span><div class="ic">${icon(g[1])}</div><p style="margin-top:8px;color:var(--ink);font-weight:600">${g[0]}</p></div>`
     ).join('');
     // re-observe new reveals
     const obs = new IntersectionObserver((es) => es.forEach((e) => e.isIntersecting && (e.target.classList.add('in'), obs.unobserve(e.target))), { threshold: 0.1 });

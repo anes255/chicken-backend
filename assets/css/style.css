@@ -70,6 +70,12 @@ section{position:relative}
 }
 .hero-card .big-logo{box-shadow:0 8px 24px -8px rgba(0,0,0,.5)}
 
+/* ---------- Icons (inline SVG) ---------- */
+.svg-ic{display:inline-block;vertical-align:-0.14em;flex:0 0 auto}
+.card .ic .svg-ic,.stat .ic .svg-ic{width:1.15em;height:1.15em}
+.panel h3{gap:8px}
+.panel h3 .svg-ic{color:var(--green-600)}
+
 /* ---------- Buttons ---------- */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 24px;border-radius:999px;font-weight:700;font-family:inherit;font-size:1rem;cursor:pointer;border:2px solid transparent;transition:transform .2s,box-shadow .2s,background .2s}
 .btn:hover{transform:translateY(-2px)}

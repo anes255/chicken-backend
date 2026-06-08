@@ -18,7 +18,7 @@
         <img src="assets/img/exhibition-logo.jpg" onerror="this.onerror=null;this.src=&#39;assets/img/exhibition-logo.jpg&#39;" alt="شعار المعرض" />
         <span class="titles"><b>المعرض الوطني لدجاج الزينة</b><span>نادي البراهما الجزائري — Brahma Club</span></span>
       </a>
-      <button class="nav-toggle" aria-label="القائمة">☰</button>
+      <button class="nav-toggle" aria-label="القائمة" data-icon="menu"></button>
       <nav class="nav-links">
         <a href="index.html">الرئيسية</a>
         <a href="conditions.html">شروط المشاركة</a>
@@ -29,7 +29,7 @@
 
   <section class="page-hero">
     <div class="container">
-      <h1>مرحباً <span id="welcomeName"></span> 👋</h1>
+      <h1>مرحباً <span id="welcomeName"></span></h1>
       <p>هذه بيانات مشاركتك في المعرض الوطني لدجاج الزينة.</p>
     </div>
   </section>
@@ -40,14 +40,14 @@
 
       <div id="content" class="hidden">
         <div class="stat-grid">
-          <div class="stat"><span class="ic">🐔</span><b id="sBirds">0</b><span>عدد الطيور</span></div>
-          <div class="stat"><span class="ic">📦</span><b id="sCages">0</b><span>عدد الأقفاص</span></div>
-          <div class="stat"><span class="ic">📍</span><b id="sWilaya" style="font-size:1.3rem">—</b><span>الولاية</span></div>
-          <div class="stat"><span class="ic">🏘️</span><b id="sBaladya" style="font-size:1.3rem">—</b><span>البلدية</span></div>
+          <div class="stat"><span class="ic" data-icon="feather"></span><b id="sBirds">0</b><span>عدد الطيور</span></div>
+          <div class="stat"><span class="ic" data-icon="package"></span><b id="sCages">0</b><span>عدد الأقفاص</span></div>
+          <div class="stat"><span class="ic" data-icon="mappin"></span><b id="sWilaya" style="font-size:1.3rem">—</b><span>الولاية</span></div>
+          <div class="stat"><span class="ic" data-icon="home"></span><b id="sBaladya" style="font-size:1.3rem">—</b><span>البلدية</span></div>
         </div>
 
         <div class="panel">
-          <h3>✏️ تعديل بياناتي</h3>
+          <h3><span data-icon="edit"></span> تعديل بياناتي</h3>
           <div class="alert success" id="alert"></div>
           <form id="profileForm">
             <div class="row-2">
@@ -62,7 +62,7 @@
             <div class="field">
               <label>السلالات وعدد الطيور والأقفاص</label>
               <div class="breeds-box" id="breedsBox"></div>
-              <button type="button" class="add-breed" id="addBreed">＋ إضافة سلالة أخرى</button>
+              <button type="button" class="add-breed" id="addBreed"><span data-icon="plus"></span> إضافة سلالة أخرى</button>
               <div class="breeds-summary" id="breedsSummary"></div>
             </div>
             <div class="field"><label>ملاحظات</label><textarea name="notes"></textarea></div>
@@ -75,6 +75,7 @@
 
   <script src="assets/js/config.js"></script>
   <script src="assets/js/data.js"></script>
+  <script src="assets/js/icons.js"></script>
   <script src="assets/js/main.js"></script>
   <script>
     if (!Auth.isLoggedIn) location.href = 'login.html';
@@ -137,7 +138,7 @@
         $('sWilaya').textContent = user.wilaya;
         $('sBaladya').textContent = user.baladya;
         alert.className = 'alert success show';
-        alert.textContent = '✓ تم حفظ التعديلات بنجاح.';
+        alert.textContent = 'تم حفظ التعديلات بنجاح.';
       } catch (err) {
         alert.className = 'alert error show';
         alert.textContent = err.message;

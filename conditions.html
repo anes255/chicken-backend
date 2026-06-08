@@ -18,7 +18,7 @@
         <img src="assets/img/exhibition-logo.jpg" onerror="this.onerror=null;this.src=&#39;assets/img/exhibition-logo.jpg&#39;" alt="شعار المعرض" />
         <span class="titles"><b>المعرض الوطني لدجاج الزينة</b><span>نادي البراهما الجزائري — Brahma Club</span></span>
       </a>
-      <button class="nav-toggle" aria-label="القائمة">☰</button>
+      <button class="nav-toggle" aria-label="القائمة" data-icon="menu"></button>
       <nav class="nav-links">
         <a href="index.html">الرئيسية</a>
         <a href="index.html#goals">الأهداف</a>
@@ -71,6 +71,7 @@
   </footer>
 
   <script src="assets/js/config.js"></script>
+  <script src="assets/js/icons.js"></script>
   <script src="assets/js/main.js"></script>
   <script>
     document.getElementById('yr').textContent = new Date().getFullYear();
@@ -87,7 +88,7 @@
       'تحتفظ لجنة التنظيم بحق تعديل أو إضافة شروط تنظيمية عند الضرورة بما يخدم حسن سير المعرض.',
     ];
     document.getElementById('condList').innerHTML = CONDS.map((c) =>
-      `<li class="reveal"><span class="chk">✓</span><span>${c}</span></li>`).join('');
+      `<li class="reveal"><span class="chk">${icon('check')}</span><span>${c}</span></li>`).join('');
     const obs = new IntersectionObserver((es) => es.forEach((e) => e.isIntersecting && (e.target.classList.add('in'), obs.unobserve(e.target))), { threshold: 0.05 });
     document.querySelectorAll('.reveal').forEach((el) => obs.observe(el));
   </script>

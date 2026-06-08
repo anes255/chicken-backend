@@ -75,7 +75,7 @@
   function renderBreedChips() {
     $('breedChips').innerHTML = allBreeds.map((b) =>
       `<span class="badge" style="display:inline-flex;align-items:center;gap:6px">${esc(b.name)}
-        <button data-delbreed="${b.id}" title="حذف" style="border:0;background:transparent;color:#fff;cursor:pointer;font-weight:800">✕</button></span>`
+        <button data-delbreed="${b.id}" title="حذف" style="border:0;background:transparent;color:#fff;cursor:pointer;display:inline-flex">${icon('x')}</button></span>`
     ).join('') || '<span style="color:var(--muted)">لا توجد سلالات.</span>';
     $('breedChips').querySelectorAll('[data-delbreed]').forEach((btn) =>
       btn.addEventListener('click', () => delBreed(btn.getAttribute('data-delbreed'))));

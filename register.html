@@ -18,7 +18,7 @@
         <img src="assets/img/exhibition-logo.jpg" onerror="this.onerror=null;this.src=&#39;assets/img/exhibition-logo.jpg&#39;" alt="شعار المعرض" />
         <span class="titles"><b>المعرض الوطني لدجاج الزينة</b><span>نادي البراهما الجزائري — Brahma Club</span></span>
       </a>
-      <button class="nav-toggle" aria-label="القائمة">☰</button>
+      <button class="nav-toggle" aria-label="القائمة" data-icon="menu"></button>
       <nav class="nav-links">
         <a href="index.html">الرئيسية</a>
         <a href="index.html#goals">الأهداف</a>
@@ -78,7 +78,7 @@
             <label>السلالات وعدد الطيور والأقفاص *</label>
             <p style="font-size:.82rem;color:var(--muted);margin:-2px 0 8px">أضف كل سلالة على حدة مع عدد طيورها وأقفاصها الخاص بها.</p>
             <div class="breeds-box" id="breedsBox"></div>
-            <button type="button" class="add-breed" id="addBreed">＋ إضافة سلالة أخرى</button>
+            <button type="button" class="add-breed" id="addBreed"><span data-icon="plus"></span> إضافة سلالة أخرى</button>
             <div class="breeds-summary" id="breedsSummary"></div>
           </div>
 
@@ -101,6 +101,7 @@
 
   <script src="assets/js/config.js"></script>
   <script src="assets/js/data.js"></script>
+  <script src="assets/js/icons.js"></script>
   <script src="assets/js/main.js"></script>
   <script>
     if (Auth.isLoggedIn) location.href = Auth.role === 'admin' ? 'admin.html' : 'dashboard.html';

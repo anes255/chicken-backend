@@ -26,7 +26,7 @@
         <img src="assets/img/brahma-logo.jpg" onerror="this.onerror=null;this.src=&#39;assets/img/brahma-logo.jpg&#39;" alt="شعار نادي البراهما" />
         <span class="titles"><b>لوحة إدارة المعرض</b><span>نادي البراهما الجزائري — Admin</span></span>
       </a>
-      <button class="nav-toggle" aria-label="القائمة">☰</button>
+      <button class="nav-toggle" aria-label="القائمة" data-icon="menu"></button>
       <nav class="nav-links">
         <a href="index.html">الموقع</a>
         <a href="#" id="logoutBtn">خروج</a>
@@ -48,23 +48,23 @@
       <div id="content" class="hidden">
         <!-- STATS -->
         <div class="stat-grid">
-          <div class="stat"><span class="ic">👥</span><b id="tParticipants">0</b><span>إجمالي المشاركين</span></div>
-          <div class="stat"><span class="ic">🐔</span><b id="tBirds">0</b><span>إجمالي الطيور</span></div>
-          <div class="stat"><span class="ic">📦</span><b id="tCages">0</b><span>إجمالي الأقفاص</span></div>
-          <div class="stat"><span class="ic">📍</span><b id="tWilayas">0</b><span>ولايات مشاركة</span></div>
+          <div class="stat"><span class="ic" data-icon="users"></span><b id="tParticipants">0</b><span>إجمالي المشاركين</span></div>
+          <div class="stat"><span class="ic" data-icon="feather"></span><b id="tBirds">0</b><span>إجمالي الطيور</span></div>
+          <div class="stat"><span class="ic" data-icon="package"></span><b id="tCages">0</b><span>إجمالي الأقفاص</span></div>
+          <div class="stat"><span class="ic" data-icon="mappin"></span><b id="tWilayas">0</b><span>ولايات مشاركة</span></div>
         </div>
 
         <!-- ANALYTICS -->
         <div class="stat-grid">
-          <div class="stat"><span class="ic">🧬</span><b id="aBreeds">0</b><span>عدد السلالات</span></div>
-          <div class="stat"><span class="ic">⭐</span><b id="aTop" style="font-size:1.25rem">—</b><span>السلالة الأكثر</span></div>
-          <div class="stat"><span class="ic">📈</span><b id="aAvgBirds">0</b><span>متوسط الطيور / مشارك</span></div>
-          <div class="stat"><span class="ic">🔀</span><b id="aMulti">0</b><span>مشاركون بعدّة سلالات</span></div>
+          <div class="stat"><span class="ic" data-icon="dna"></span><b id="aBreeds">0</b><span>عدد السلالات</span></div>
+          <div class="stat"><span class="ic" data-icon="star"></span><b id="aTop" style="font-size:1.25rem">—</b><span>السلالة الأكثر</span></div>
+          <div class="stat"><span class="ic" data-icon="trending"></span><b id="aAvgBirds">0</b><span>متوسط الطيور / مشارك</span></div>
+          <div class="stat"><span class="ic" data-icon="shuffle"></span><b id="aMulti">0</b><span>مشاركون بعدّة سلالات</span></div>
         </div>
 
         <!-- BY BREED -->
         <div class="panel">
-          <h3>🧬 تحليلات حسب السلالة</h3>
+          <h3><span data-icon="dna"></span> تحليلات حسب السلالة</h3>
           <div class="table-wrap">
             <table>
               <thead><tr><th>السلالة</th><th>المشاركون</th><th>الطيور</th><th>الأقفاص</th><th style="width:30%">نسبة الطيور</th></tr></thead>
@@ -75,19 +75,19 @@
 
         <!-- BREED MANAGEMENT -->
         <div class="panel">
-          <h3>🧾 إدارة قائمة السلالات</h3>
+          <h3><span data-icon="clipboard"></span> إدارة قائمة السلالات</h3>
           <p style="color:var(--muted);font-size:.9rem;margin-bottom:12px">السلالات التي تظهر للمشاركين في صفحة التسجيل.</p>
           <div class="alert error" id="breedAlert"></div>
           <div class="toolbar">
             <input id="newBreed" placeholder="اسم سلالة جديدة..." style="flex:1;min-width:200px" />
-            <button class="btn btn-primary btn-sm" id="addBreedBtn">＋ إضافة سلالة</button>
+            <button class="btn btn-primary btn-sm" id="addBreedBtn"><span data-icon="plus"></span> إضافة سلالة</button>
           </div>
           <div class="breed-chips" id="breedChips"></div>
         </div>
 
         <!-- BY WILAYA -->
         <div class="panel">
-          <h3>📊 الإحصائيات حسب الولاية</h3>
+          <h3><span data-icon="barchart"></span> الإحصائيات حسب الولاية</h3>
           <div class="table-wrap">
             <table>
               <thead><tr><th>الولاية</th><th>المشاركون</th><th>الطيور</th><th>الأقفاص</th><th style="width:30%">النسبة</th></tr></thead>
@@ -98,12 +98,12 @@
 
         <!-- PARTICIPANTS -->
         <div class="panel">
-          <h3>🗂️ إدارة المشاركين</h3>
+          <h3><span data-icon="folder"></span> إدارة المشاركين</h3>
           <div class="toolbar">
-            <input id="search" placeholder="🔎 بحث بالاسم أو الهاتف..." style="flex:1;min-width:180px" />
+            <input id="search" placeholder="بحث بالاسم أو الهاتف..." style="flex:1;min-width:180px" />
             <select id="wilayaFilter"><option value="">كل الولايات</option></select>
             <select id="breedFilter"><option value="">كل السلالات</option></select>
-            <button class="btn btn-ghost btn-sm" id="exportBtn">⬇️ تصدير CSV</button>
+            <button class="btn btn-ghost btn-sm" id="exportBtn"><span data-icon="download"></span> تصدير CSV</button>
           </div>
           <div class="table-wrap">
             <table>
@@ -140,7 +140,7 @@
         <div class="field">
           <label>السلالات وعدد الطيور والأقفاص</label>
           <div class="breeds-box" id="mBreedsBox"></div>
-          <button type="button" class="add-breed" id="mAddBreed">＋ إضافة سلالة</button>
+          <button type="button" class="add-breed" id="mAddBreed"><span data-icon="plus"></span> إضافة سلالة</button>
         </div>
         <div class="field"><label>ملاحظات</label><textarea name="notes"></textarea></div>
         <div class="modal-actions">
@@ -153,6 +153,7 @@
 
   <script src="assets/js/config.js"></script>
   <script src="assets/js/data.js"></script>
+  <script src="assets/js/icons.js"></script>
   <script src="assets/js/main.js"></script>
   <script src="assets/js/admin.js"></script>
 </body>
