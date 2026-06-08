@@ -32,17 +32,17 @@
 
   <header class="site-header">
     <div class="container nav">
-      <a class="brand" href="index.html">
+      <a class="brand" href="/">
         <img src="assets/img/exhibition-logo.jpg" onerror="this.onerror=null;this.src=&#39;assets/img/exhibition-logo.jpg&#39;" alt="شعار المعرض" />
         <span class="titles"><b>المعرض الوطني لدجاج الزينة</b><span>نادي البراهما الجزائري — Brahma Club</span></span>
         <img src="assets/img/brahma-logo.jpg" onerror="this.onerror=null;this.src=&#39;assets/img/brahma-logo.jpg&#39;" alt="شعار نادي البراهما" />
       </a>
       <button class="nav-toggle" aria-label="القائمة" data-icon="menu"></button>
       <nav class="nav-links">
-        <a href="index.html">الرئيسية</a>
-        <a href="index.html#goals">الأهداف</a>
-        <a href="conditions.html">شروط المشاركة</a>
-        <a href="register.html">التسجيل</a>
+        <a href="/">الرئيسية</a>
+        <a href="/#goals">الأهداف</a>
+        <a href="conditions">شروط المشاركة</a>
+        <a href="register">التسجيل</a>
         <span data-auth-slot style="display:contents"></span>
       </nav>
     </div>
@@ -69,7 +69,7 @@
             <input name="password" type="password" required placeholder="كلمة المرور" />
           </div>
           <button class="btn btn-primary btn-block" type="submit" id="submitBtn">دخول</button>
-          <p class="form-foot">ليس لديك حساب؟ <a href="register.html">سجّل الآن</a></p>
+          <p class="form-foot">ليس لديك حساب؟ <a href="register">سجّل الآن</a></p>
         </form>
       </div>
     </div>
@@ -79,7 +79,7 @@
   <script src="assets/js/icons.js"></script>
   <script src="assets/js/main.js"></script>
   <script>
-    if (Auth.isLoggedIn) location.href = Auth.role === 'admin' ? 'admin.html' : 'dashboard.html';
+    if (Auth.isLoggedIn) location.href = Auth.role === 'admin' ? 'admin' : 'dashboard';
     const alert = document.getElementById('alert');
     const form = document.getElementById('loginForm');
     const btn = document.getElementById('submitBtn');
@@ -91,7 +91,7 @@
       try {
         const res = await api('/api/login', { method: 'POST', body: Object.fromEntries(new FormData(form)) });
         Auth.save(res);
-        location.href = res.role === 'admin' ? 'admin.html' : 'dashboard.html';
+        location.href = res.role === 'admin' ? 'admin' : 'dashboard';
       } catch (err) {
         alert.textContent = err.message;
         alert.classList.add('show');

@@ -32,17 +32,17 @@
 
   <header class="site-header">
     <div class="container nav">
-      <a class="brand" href="index.html">
+      <a class="brand" href="/">
         <img src="assets/img/exhibition-logo.jpg" onerror="this.onerror=null;this.src=&#39;assets/img/exhibition-logo.jpg&#39;" alt="شعار المعرض" />
         <span class="titles"><b>المعرض الوطني لدجاج الزينة</b><span>نادي البراهما الجزائري — Brahma Club</span></span>
         <img src="assets/img/brahma-logo.jpg" onerror="this.onerror=null;this.src=&#39;assets/img/brahma-logo.jpg&#39;" alt="شعار نادي البراهما" />
       </a>
       <button class="nav-toggle" aria-label="القائمة" data-icon="menu"></button>
       <nav class="nav-links">
-        <a href="index.html">الرئيسية</a>
-        <a href="index.html#goals">الأهداف</a>
-        <a href="conditions.html">شروط المشاركة</a>
-        <a href="register.html">التسجيل</a>
+        <a href="/">الرئيسية</a>
+        <a href="/#goals">الأهداف</a>
+        <a href="conditions">شروط المشاركة</a>
+        <a href="register">التسجيل</a>
         <span data-auth-slot style="display:contents"></span>
       </nav>
     </div>
@@ -108,11 +108,11 @@
 
           <label style="display:flex;gap:8px;align-items:flex-start;font-size:.9rem;color:var(--muted);margin:6px 0 16px">
             <input type="checkbox" id="agree" required style="width:auto;margin-top:5px" />
-            <span>أقرّ بأنني اطّلعت على <a href="conditions.html" target="_blank" style="color:var(--green-600);font-weight:700">شروط المشاركة</a> وأوافق عليها، وأتحمّل مسؤولية صحة المعلومات المقدَّمة.</span>
+            <span>أقرّ بأنني اطّلعت على <a href="conditions" target="_blank" style="color:var(--green-600);font-weight:700">شروط المشاركة</a> وأوافق عليها، وأتحمّل مسؤولية صحة المعلومات المقدَّمة.</span>
           </label>
 
           <button class="btn btn-primary btn-block" type="submit" id="submitBtn">تسجيل المشاركة</button>
-          <p class="form-foot">لديك حساب بالفعل؟ <a href="login.html">سجّل الدخول</a></p>
+          <p class="form-foot">لديك حساب بالفعل؟ <a href="login">سجّل الدخول</a></p>
         </form>
       </div>
     </div>
@@ -123,7 +123,7 @@
   <script src="assets/js/icons.js"></script>
   <script src="assets/js/main.js"></script>
   <script>
-    if (Auth.isLoggedIn) location.href = Auth.role === 'admin' ? 'admin.html' : 'dashboard.html';
+    if (Auth.isLoggedIn) location.href = Auth.role === 'admin' ? 'admin' : 'dashboard';
     fillWilayas(document.getElementById('wilaya'), document.getElementById('baladya'));
 
     const alert = document.getElementById('alert');
@@ -167,7 +167,7 @@
       try {
         const res = await api('/api/register', { method: 'POST', body: data });
         Auth.save(res);
-        location.href = 'dashboard.html';
+        location.href = 'dashboard';
       } catch (err) {
         alert.textContent = err.message;
         alert.classList.add('show');

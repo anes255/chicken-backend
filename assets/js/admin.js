@@ -1,7 +1,7 @@
 /* Admin dashboard: stats, analytics, per-breed breakdown, breed management,
    participant table with search/wilaya/breed filters, edit/delete, CSV export. */
 (function () {
-  if (!Auth.isLoggedIn || Auth.role !== 'admin') { location.href = 'login.html'; return; }
+  if (!Auth.isLoggedIn || Auth.role !== 'admin') { location.href = 'login'; return; }
 
   const $ = (id) => document.getElementById(id);
   let allParticipants = [];

@@ -11,7 +11,7 @@
     get role() { return localStorage.getItem('role'); },
     get user() { try { return JSON.parse(localStorage.getItem('user') || '{}'); } catch { return {}; } },
     get isLoggedIn() { return !!this.token; },
-    logout() { localStorage.clear(); location.href = 'index.html'; },
+    logout() { localStorage.clear(); location.href = '/'; },
   };
 
   // ---- API ----
@@ -36,7 +36,7 @@
     if (toggle && links) toggle.addEventListener('click', () => links.classList.toggle('open'));
 
     // mark active link
-    const page = location.pathname.split('/').pop() || 'index.html';
+    const page = location.pathname.split('/').pop() || '/';
     document.querySelectorAll('.nav-links a[href]').forEach((a) => {
       if (a.getAttribute('href') === page) a.classList.add('active');
     });
@@ -45,19 +45,19 @@
     const authSlot = document.querySelector('[data-auth-slot]');
     if (authSlot) {
       if (Auth.isLoggedIn) {
-        const dash = Auth.role === 'admin' ? 'admin.html' : 'dashboard.html';
+        const dash = Auth.role === 'admin' ? 'admin' : 'dashboard';
         authSlot.innerHTML =
           `<a href="${dash}">${Auth.role === 'admin' ? 'لوحة الإدارة' : 'حسابي'}</a>` +
           `<a href="#" id="logoutBtn" class="btn btn-gold btn-sm">خروج</a>`;
         const lb = document.getElementById('logoutBtn');
         if (lb) lb.addEventListener('click', (e) => { e.preventDefault(); Auth.logout(); });
         // hide the standalone login/register nav links when signed in
-        document.querySelectorAll('.nav-links > a[href="register.html"], .nav-links > a[href="login.html"]')
+        document.querySelectorAll('.nav-links > a[href="register"], .nav-links > a[href="login"]')
           .forEach((a) => { a.style.display = 'none'; });
       } else {
         authSlot.innerHTML =
-          `<a href="login.html">دخول</a>` +
-          `<a href="register.html" class="btn btn-gold btn-sm">سجّل الآن</a>`;
+          `<a href="login">دخول</a>` +
+          `<a href="register" class="btn btn-gold btn-sm">سجّل الآن</a>`;
       }
     }
 
