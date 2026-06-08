@@ -131,23 +131,29 @@
     $('aAvgBirds').textContent = a.avgBirdsPerParticipant != null ? a.avgBirdsPerParticipant : 0;
     countUp($('aMulti'), a.multiBreedParticipants || 0);
 
-    // by wilaya
-    const maxW = Math.max(1, ...s.byWilaya.map((w) => w.participants));
+    // by wilaya — percentage of total participants
+    const totalP = s.totals.total_participants || 0;
     $('wilayaStats').innerHTML = s.byWilaya.map((w) => `
       <tr><td><b>${esc(w.wilaya)}</b></td>
         <td><span class="badge">${w.participants}</span></td>
         <td>${w.birds}</td><td>${w.cages}</td>
-        <td><div class="bar" style="width:${Math.round((w.participants / maxW) * 100)}%"></div></td></tr>`
+        <td>${progBar(totalP ? (w.participants / totalP) * 100 : 0)}</td></tr>`
     ).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--muted)">لا توجد بيانات بعد.</td></tr>';
 
-    // by breed
-    const maxB = Math.max(1, ...(s.byBreed || []).map((b) => b.birds));
+    // by breed — percentage of total birds
+    const totalB = s.totals.total_birds || 0;
     $('breedStats').innerHTML = (s.byBreed || []).map((b) => `
       <tr><td><b>${esc(b.breed)}</b></td>
         <td><span class="badge beige">${b.participants}</span></td>
         <td>${b.birds}</td><td>${b.cages}</td>
-        <td><div class="bar" style="width:${Math.round((b.birds / maxB) * 100)}%"></div></td></tr>`
+        <td>${progBar(totalB ? (b.birds / totalB) * 100 : 0)}</td></tr>`
     ).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--muted)">لا توجد بيانات بعد.</td></tr>';
+  }
+
+  // Render a percentage bar: track + filled portion + numeric label.
+  function progBar(pct) {
+    const v = Math.max(0, Math.min(100, Math.round(pct)));
+    return `<div class="prog"><div class="prog-track"><div class="prog-fill" style="width:${v}%"></div></div><span class="prog-pct">${v}%</span></div>`;
   }
 
   // ---- breed management ----
