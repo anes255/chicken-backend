@@ -144,13 +144,41 @@
   const PALETTE = ['#2f7d4f', '#cda860', '#3c9a63', '#256241', '#b9803f', '#7bbf95', '#15793a', '#d8bd7e', '#5e8c5a', '#c0492f', '#1d4a30', '#88b04b', '#e0cfa6', '#46a06a', '#a9743b'];
   const colors = (n) => Array.from({ length: n }, (_, i) => PALETTE[i % PALETTE.length]);
   const charts = {};
+  const CHART_IDS = ['chBreedPie', 'chBreedBar', 'chWilayaPart', 'chWilayaBirds'];
+  const chartDirty = { chBreedPie: true, chBreedBar: true, chWilayaPart: true, chWilayaBirds: true };
+  let latestA = null;
   let selBreeds = new Set();
   let selWilayas = new Set();
 
-  if (window.Chart) {
-    Chart.defaults.font.family = 'Tajawal, Cairo, sans-serif';
-    Chart.defaults.color = '#5e6b56';
+  // Load Chart.js on demand — only the first time the Analytics tab is opened.
+  let chartJsPromise = null;
+  function ensureChartJs() {
+    if (window.Chart) return Promise.resolve();
+    if (chartJsPromise) return chartJsPromise;
+    chartJsPromise = new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js';
+      s.onload = () => {
+        Chart.defaults.font.family = 'Tajawal, Cairo, sans-serif';
+        Chart.defaults.color = '#5e6b56';
+        resolve();
+      };
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+    return chartJsPromise;
   }
+
+  // Render each chart only when its canvas scrolls into view.
+  const chartObserver = ('IntersectionObserver' in window)
+    ? new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting && chartDirty[e.target.id]) {
+            ensureChartJs().then(() => { if (chartDirty[e.target.id]) renderChart(e.target.id); });
+          }
+        });
+      }, { rootMargin: '150px' })
+    : null;
 
   // Tab switching.
   document.querySelectorAll('.tab').forEach((t) => t.addEventListener('click', () => {
@@ -179,6 +207,12 @@
       c.addEventListener('click', () => { chipToggle(selBreeds, c.getAttribute('data-b'), c); renderAnalytics(); }));
     $('fWilayas').querySelectorAll('[data-w]').forEach((c) =>
       c.addEventListener('click', () => { chipToggle(selWilayas, c.getAttribute('data-w'), c); renderAnalytics(); }));
+
+    // Observe each chart canvas so it renders only when scrolled into view.
+    if (chartObserver && !buildAnalyticsFilters._observing) {
+      buildAnalyticsFilters._observing = true;
+      CHART_IDS.forEach((id) => { const c = $(id); if (c) chartObserver.observe(c); });
+    }
   }
 
   $('filtAll').addEventListener('click', () => {
@@ -234,7 +268,10 @@
         <td>${w.birds}</td><td>${w.cages}</td>
         <td>${progBar((w.participants / tp) * 100)}</td></tr>`).join('') || emptyRow;
 
-    drawCharts(a);
+    // Charts: data changed → mark all dirty, but only (re)draw the ones on screen.
+    latestA = a;
+    CHART_IDS.forEach((id) => { chartDirty[id] = true; });
+    ensureChartJs().then(renderVisibleCharts).catch(() => {});
   }
 
   function mkChart(id, cfg) {
@@ -243,42 +280,54 @@
     charts[id] = new Chart($(id), cfg);
   }
 
-  function drawCharts(a) {
+  function chartConfig(id, a) {
     const baseOpts = (extra = {}) => Object.assign({
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { rtl: true, labels: { boxWidth: 14, padding: 12 } },
-        tooltip: { rtl: true },
-      },
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { rtl: true, labels: { boxWidth: 14, padding: 12 } }, tooltip: { rtl: true } },
     }, extra);
-
     const topB = a.breeds.slice(0, 12);
     const topWp = a.wilayas.slice(0, 12);
     const topWb = [...a.wilayas].sort((x, y) => y.birds - x.birds).slice(0, 12);
-
-    mkChart('chBreedPie', {
+    if (id === 'chBreedPie') return {
       type: 'doughnut',
       data: { labels: topB.map((b) => b.breed), datasets: [{ data: topB.map((b) => b.birds), backgroundColor: colors(topB.length), borderColor: '#fff', borderWidth: 2 }] },
       options: baseOpts({ plugins: { legend: { position: 'bottom', rtl: true, labels: { boxWidth: 12, padding: 10 } }, tooltip: { rtl: true } }, cutout: '55%' }),
-    });
-    mkChart('chBreedBar', {
+    };
+    if (id === 'chBreedBar') return {
       type: 'bar',
       data: { labels: topB.map((b) => b.breed), datasets: [
         { label: 'الطيور', data: topB.map((b) => b.birds), backgroundColor: '#2f7d4f', borderRadius: 6 },
         { label: 'الأقفاص', data: topB.map((b) => b.cages), backgroundColor: '#cda860', borderRadius: 6 },
       ] },
       options: baseOpts({ scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }),
-    });
-    mkChart('chWilayaPart', {
+    };
+    if (id === 'chWilayaPart') return {
       type: 'bar',
       data: { labels: topWp.map((w) => w.wilaya), datasets: [{ label: 'المشاركون', data: topWp.map((w) => w.participants), backgroundColor: colors(topWp.length), borderRadius: 6 }] },
       options: baseOpts({ plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }),
-    });
-    mkChart('chWilayaBirds', {
+    };
+    return {
       type: 'bar',
       data: { labels: topWb.map((w) => w.wilaya), datasets: [{ label: 'الطيور', data: topWb.map((w) => w.birds), backgroundColor: '#3c9a63', borderRadius: 6 }] },
       options: baseOpts({ indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } }),
+    };
+  }
+
+  function renderChart(id) {
+    if (!latestA || !window.Chart) return;
+    mkChart(id, chartConfig(id, latestA));
+    chartDirty[id] = false;
+  }
+
+  // Draw any dirty chart whose canvas is currently in (or near) the viewport.
+  function renderVisibleCharts() {
+    CHART_IDS.forEach((id) => {
+      if (!chartDirty[id]) return;
+      const c = $(id);
+      if (!c) return;
+      const r = c.getBoundingClientRect();
+      const visible = r.bottom > -150 && r.top < (window.innerHeight + 150) && r.width > 0;
+      if (visible) renderChart(id);
     });
   }
 
