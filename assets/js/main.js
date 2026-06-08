@@ -54,7 +54,7 @@
       } else {
         authSlot.innerHTML =
           `<a href="login.html">دخول</a>` +
-          `<a href="register.html" class="btn btn-primary btn-sm">سجّل الآن</a>`;
+          `<a href="register.html" class="btn btn-gold btn-sm">سجّل الآن</a>`;
       }
     }
 
