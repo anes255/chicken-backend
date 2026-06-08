@@ -65,96 +65,130 @@
       <div id="loading" class="center"><div class="spinner"></div></div>
 
       <div id="content" class="hidden">
-        <!-- STATS -->
-        <div class="stat-grid">
-          <div class="stat"><span class="ic" data-icon="users"></span><b id="tParticipants">0</b><span>إجمالي المشاركين</span></div>
-          <div class="stat"><span class="ic" data-icon="feather"></span><b id="tBirds">0</b><span>إجمالي الطيور</span></div>
-          <div class="stat"><span class="ic" data-icon="package"></span><b id="tCages">0</b><span>إجمالي الأقفاص</span></div>
-          <div class="stat"><span class="ic" data-icon="mappin"></span><b id="tWilayas">0</b><span>ولايات مشاركة</span></div>
+        <!-- TABS (page inside a page) -->
+        <div class="tabs">
+          <button class="tab active" data-tab="overview"><span data-icon="folder"></span> الإدارة</button>
+          <button class="tab" data-tab="analytics"><span data-icon="barchart"></span> التحليلات والرسوم البيانية</button>
         </div>
 
-        <!-- ANALYTICS -->
-        <div class="stat-grid">
-          <div class="stat"><span class="ic" data-icon="dna"></span><b id="aBreeds">0</b><span>عدد السلالات</span></div>
-          <div class="stat"><span class="ic" data-icon="star"></span><b id="aTop" style="font-size:1.25rem">—</b><span>السلالة الأكثر</span></div>
-          <div class="stat"><span class="ic" data-icon="trending"></span><b id="aAvgBirds">0</b><span>متوسط الطيور / مشارك</span></div>
-          <div class="stat"><span class="ic" data-icon="shuffle"></span><b id="aMulti">0</b><span>مشاركون بعدّة سلالات</span></div>
+        <!-- ============ OVERVIEW TAB ============ -->
+        <div id="tab-overview">
+          <div class="stat-grid">
+            <div class="stat"><span class="ic" data-icon="users"></span><b id="tParticipants">0</b><span>إجمالي المشاركين</span></div>
+            <div class="stat"><span class="ic" data-icon="feather"></span><b id="tBirds">0</b><span>إجمالي الطيور</span></div>
+            <div class="stat"><span class="ic" data-icon="package"></span><b id="tCages">0</b><span>إجمالي الأقفاص</span></div>
+            <div class="stat"><span class="ic" data-icon="mappin"></span><b id="tWilayas">0</b><span>ولايات مشاركة</span></div>
+          </div>
+
+          <!-- PARTICIPANTS -->
+          <div class="panel">
+            <h3><span data-icon="users"></span> إدارة المشاركين</h3>
+            <div class="toolbar">
+              <input id="search" placeholder="بحث بالاسم أو الهاتف..." style="flex:1;min-width:180px" />
+              <select id="wilayaFilter"><option value="">كل الولايات</option></select>
+              <select id="breedFilter"><option value="">كل السلالات</option></select>
+              <button class="btn btn-ghost btn-sm" id="exportBtn"><span data-icon="download"></span> تصدير CSV</button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr>
+                  <th>#</th><th>الاسم</th><th>الهاتف</th><th>الولاية</th><th>البلدية</th>
+                  <th>الطيور</th><th>الأقفاص</th><th>السلالة</th><th>التاريخ</th><th>إجراءات</th>
+                </tr></thead>
+                <tbody id="usersBody"></tbody>
+              </table>
+            </div>
+            <p id="emptyMsg" class="center muted hidden mt" style="color:var(--muted)">لا يوجد مشاركون بعد.</p>
+            <div class="pager" id="pager"></div>
+          </div>
+
+          <!-- BREED MANAGEMENT -->
+          <div class="panel">
+            <h3><span data-icon="clipboard"></span> إدارة قائمة السلالات</h3>
+            <p style="color:var(--muted);font-size:.9rem;margin-bottom:12px">السلالات التي تظهر للمشاركين في صفحة التسجيل.</p>
+            <div class="alert error" id="breedAlert"></div>
+            <div class="toolbar">
+              <input id="newBreed" placeholder="اسم سلالة جديدة..." style="flex:1;min-width:200px" />
+              <button class="btn btn-primary btn-sm" id="addBreedBtn"><span data-icon="plus"></span> إضافة سلالة</button>
+            </div>
+            <div class="breed-chips" id="breedChips"></div>
+          </div>
+
+          <!-- ADMIN MANAGEMENT -->
+          <div class="panel">
+            <h3><span data-icon="users"></span> إدارة المدراء</h3>
+            <p style="color:var(--muted);font-size:.9rem;margin-bottom:12px">إضافة مدراء جدد يمكنهم الدخول إلى لوحة الإدارة، وتعديل بياناتهم أو حذفهم.</p>
+            <div class="alert error" id="adminAlert"></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>الاسم</th><th>رقم الهاتف</th><th>النوع</th><th>إجراءات</th></tr></thead>
+                <tbody id="adminsBody"></tbody>
+              </table>
+            </div>
+            <h4 style="margin:18px 0 10px;color:var(--green-800)">إضافة مدير جديد</h4>
+            <div class="row-2">
+              <div class="field"><label>الاسم الكامل</label><input id="naName" placeholder="اسم المدير" /></div>
+              <div class="field"><label>رقم الهاتف</label><input id="naPhone" inputmode="tel" placeholder="رقم الهاتف" /></div>
+            </div>
+            <div class="field"><label>كلمة المرور</label><input id="naPass" type="password" placeholder="6 أحرف على الأقل" /></div>
+            <button class="btn btn-primary btn-sm" id="addAdminBtn"><span data-icon="plus"></span> إضافة مدير</button>
+          </div>
         </div>
 
-        <!-- BY BREED -->
-        <div class="panel">
-          <h3><span data-icon="dna"></span> تحليلات حسب السلالة</h3>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>السلالة</th><th>المشاركون</th><th>الطيور</th><th>الأقفاص</th><th style="width:30%">نسبة الطيور</th></tr></thead>
-              <tbody id="breedStats"></tbody>
-            </table>
+        <!-- ============ ANALYTICS TAB ============ -->
+        <div id="tab-analytics" class="hidden">
+          <!-- FILTERS -->
+          <div class="panel">
+            <h3><span data-icon="search"></span> عوامل التصفية — اختر ما تريد تضمينه</h3>
+            <div class="filt-group">
+              <label>السلالات المشمولة</label>
+              <div class="chip-toggles" id="fBreeds"></div>
+            </div>
+            <div class="filt-group">
+              <label>الولايات المشمولة</label>
+              <div class="chip-toggles" id="fWilayas"></div>
+            </div>
+            <div class="filt-actions">
+              <button class="btn btn-ghost btn-sm" id="filtAll">تحديد الكل</button>
+              <button class="btn btn-ghost btn-sm" id="filtNone">إلغاء الكل</button>
+            </div>
           </div>
-        </div>
 
-        <!-- BREED MANAGEMENT -->
-        <div class="panel">
-          <h3><span data-icon="clipboard"></span> إدارة قائمة السلالات</h3>
-          <p style="color:var(--muted);font-size:.9rem;margin-bottom:12px">السلالات التي تظهر للمشاركين في صفحة التسجيل.</p>
-          <div class="alert error" id="breedAlert"></div>
-          <div class="toolbar">
-            <input id="newBreed" placeholder="اسم سلالة جديدة..." style="flex:1;min-width:200px" />
-            <button class="btn btn-primary btn-sm" id="addBreedBtn"><span data-icon="plus"></span> إضافة سلالة</button>
+          <!-- FILTERED TOTALS -->
+          <div class="stat-grid">
+            <div class="stat"><span class="ic" data-icon="users"></span><b id="fParticipants">0</b><span>المشاركون المطابقون</span></div>
+            <div class="stat"><span class="ic" data-icon="feather"></span><b id="fBirds">0</b><span>إجمالي الطيور</span></div>
+            <div class="stat"><span class="ic" data-icon="package"></span><b id="fCages">0</b><span>إجمالي الأقفاص</span></div>
+            <div class="stat"><span class="ic" data-icon="dna"></span><b id="fBreedsCount">0</b><span>سلالات مشمولة</span></div>
           </div>
-          <div class="breed-chips" id="breedChips"></div>
-        </div>
 
-        <!-- ADMIN MANAGEMENT -->
-        <div class="panel">
-          <h3><span data-icon="users"></span> إدارة المدراء</h3>
-          <p style="color:var(--muted);font-size:.9rem;margin-bottom:12px">إضافة مدراء جدد يمكنهم الدخول إلى لوحة الإدارة، وتعديل بياناتهم أو حذفهم.</p>
-          <div class="alert error" id="adminAlert"></div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>الاسم</th><th>رقم الهاتف</th><th>النوع</th><th>إجراءات</th></tr></thead>
-              <tbody id="adminsBody"></tbody>
-            </table>
+          <!-- CHARTS -->
+          <div class="charts-grid">
+            <div class="panel chart-card"><h3>توزيع الطيور حسب السلالة</h3><div class="chart-box"><canvas id="chBreedPie"></canvas></div></div>
+            <div class="panel chart-card"><h3>الطيور والأقفاص حسب السلالة</h3><div class="chart-box"><canvas id="chBreedBar"></canvas></div></div>
+            <div class="panel chart-card"><h3>المشاركون حسب الولاية</h3><div class="chart-box"><canvas id="chWilayaPart"></canvas></div></div>
+            <div class="panel chart-card"><h3>الطيور حسب الولاية</h3><div class="chart-box"><canvas id="chWilayaBirds"></canvas></div></div>
           </div>
-          <h4 style="margin:18px 0 10px;color:var(--green-800)">إضافة مدير جديد</h4>
-          <div class="row-2">
-            <div class="field"><label>الاسم الكامل</label><input id="naName" placeholder="اسم المدير" /></div>
-            <div class="field"><label>رقم الهاتف</label><input id="naPhone" inputmode="tel" placeholder="رقم الهاتف" /></div>
-          </div>
-          <div class="field"><label>كلمة المرور</label><input id="naPass" type="password" placeholder="6 أحرف على الأقل" /></div>
-          <button class="btn btn-primary btn-sm" id="addAdminBtn"><span data-icon="plus"></span> إضافة مدير</button>
-        </div>
 
-        <!-- BY WILAYA -->
-        <div class="panel">
-          <h3><span data-icon="barchart"></span> الإحصائيات حسب الولاية</h3>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>الولاية</th><th>المشاركون</th><th>الطيور</th><th>الأقفاص</th><th style="width:30%">النسبة</th></tr></thead>
-              <tbody id="wilayaStats"></tbody>
-            </table>
+          <!-- DETAIL TABLES (react to filters) -->
+          <div class="panel">
+            <h3><span data-icon="dna"></span> تفصيل حسب السلالة</h3>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>السلالة</th><th>المشاركون</th><th>الطيور</th><th>الأقفاص</th><th style="width:30%">نسبة الطيور</th></tr></thead>
+                <tbody id="breedStats"></tbody>
+              </table>
+            </div>
           </div>
-        </div>
-
-        <!-- PARTICIPANTS -->
-        <div class="panel">
-          <h3><span data-icon="folder"></span> إدارة المشاركين</h3>
-          <div class="toolbar">
-            <input id="search" placeholder="بحث بالاسم أو الهاتف..." style="flex:1;min-width:180px" />
-            <select id="wilayaFilter"><option value="">كل الولايات</option></select>
-            <select id="breedFilter"><option value="">كل السلالات</option></select>
-            <button class="btn btn-ghost btn-sm" id="exportBtn"><span data-icon="download"></span> تصدير CSV</button>
+          <div class="panel">
+            <h3><span data-icon="barchart"></span> تفصيل حسب الولاية</h3>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>الولاية</th><th>المشاركون</th><th>الطيور</th><th>الأقفاص</th><th style="width:30%">النسبة</th></tr></thead>
+                <tbody id="wilayaStats"></tbody>
+              </table>
+            </div>
           </div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr>
-                <th>#</th><th>الاسم</th><th>الهاتف</th><th>الولاية</th><th>البلدية</th>
-                <th>الطيور</th><th>الأقفاص</th><th>السلالة</th><th>التاريخ</th><th>إجراءات</th>
-              </tr></thead>
-              <tbody id="usersBody"></tbody>
-            </table>
-          </div>
-          <p id="emptyMsg" class="center muted hidden mt" style="color:var(--muted)">لا يوجد مشاركون بعد.</p>
-          <div class="pager" id="pager"></div>
         </div>
       </div>
     </div>
@@ -208,6 +242,7 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
   <script src="assets/js/config.js"></script>
   <script src="assets/js/data.js"></script>
   <script src="assets/js/icons.js"></script>

@@ -21,25 +21,38 @@
 
   async function loadAll() {
     try {
-      const [stats, list, breedsRes, adminsRes] = await Promise.all([
-        api('/api/admin/stats', { auth: true }),
+      const [list, breedsRes, adminsRes] = await Promise.all([
         api('/api/admin/participants', { auth: true }),
         api('/api/breeds'),
         api('/api/admin/admins', { auth: true }),
       ]);
       allParticipants = list.participants;
       allBreeds = breedsRes.breeds || [];
-      renderStats(stats);
+      renderOverviewTotals();
       renderBreedChips();
       renderAdmins(adminsRes);
       renderFilters();
       renderTable();
+      buildAnalyticsFilters();
       $('loading').classList.add('hidden');
       $('content').classList.remove('hidden');
     } catch (e) {
       if (String(e.message).match(/الجلسة|الدخول|الإدارة/)) { Auth.logout(); return; }
       $('loading').innerHTML = '<p style="color:var(--danger)">' + esc(e.message) + '</p>';
     }
+  }
+
+  function num(n) { return Number(n || 0).toLocaleString('en-US'); }
+
+  // Overview totals (computed client-side from participants).
+  function renderOverviewTotals() {
+    const tb = allParticipants.reduce((a, p) => a + (p.numBirds || 0), 0);
+    const tc = allParticipants.reduce((a, p) => a + (p.numCages || 0), 0);
+    const wil = new Set(allParticipants.map((p) => p.wilaya)).size;
+    countUp($('tParticipants'), allParticipants.length);
+    countUp($('tBirds'), tb);
+    countUp($('tCages'), tc);
+    countUp($('tWilayas'), wil);
   }
 
   // ---- admin accounts management ----
@@ -119,42 +132,154 @@
     catch (e) { alert(e.message); }
   }
 
-  function renderStats(s) {
-    countUp($('tParticipants'), s.totals.total_participants);
-    countUp($('tBirds'), s.totals.total_birds);
-    countUp($('tCages'), s.totals.total_cages);
-    countUp($('tWilayas'), s.byWilaya.length);
-
-    // analytics row
-    const a = s.analytics || {};
-    countUp($('aBreeds'), a.distinctBreeds || 0);
-    $('aTop').textContent = a.topBreed || '—';
-    $('aAvgBirds').textContent = a.avgBirdsPerParticipant != null ? a.avgBirdsPerParticipant : 0;
-    countUp($('aMulti'), a.multiBreedParticipants || 0);
-
-    // by wilaya — percentage of total participants
-    const totalP = s.totals.total_participants || 0;
-    $('wilayaStats').innerHTML = s.byWilaya.map((w) => `
-      <tr><td><b>${esc(w.wilaya)}</b></td>
-        <td><span class="badge">${w.participants}</span></td>
-        <td>${w.birds}</td><td>${w.cages}</td>
-        <td>${progBar(totalP ? (w.participants / totalP) * 100 : 0)}</td></tr>`
-    ).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--muted)">لا توجد بيانات بعد.</td></tr>';
-
-    // by breed — percentage of total birds
-    const totalB = s.totals.total_birds || 0;
-    $('breedStats').innerHTML = (s.byBreed || []).map((b) => `
-      <tr><td><b>${esc(b.breed)}</b></td>
-        <td><span class="badge beige">${b.participants}</span></td>
-        <td>${b.birds}</td><td>${b.cages}</td>
-        <td>${progBar(totalB ? (b.birds / totalB) * 100 : 0)}</td></tr>`
-    ).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--muted)">لا توجد بيانات بعد.</td></tr>';
-  }
-
   // Render a percentage bar: track + filled portion + numeric label.
   function progBar(pct) {
     const v = Math.max(0, Math.min(100, Math.round(pct)));
     return `<div class="prog"><div class="prog-track"><div class="prog-fill" style="width:${v}%"></div></div><span class="prog-pct">${v}%</span></div>`;
+  }
+
+  // ============================================================
+  //  ANALYTICS TAB — live filters + Chart.js diagrams
+  // ============================================================
+  const PALETTE = ['#2f7d4f', '#cda860', '#3c9a63', '#256241', '#b9803f', '#7bbf95', '#15793a', '#d8bd7e', '#5e8c5a', '#c0492f', '#1d4a30', '#88b04b', '#e0cfa6', '#46a06a', '#a9743b'];
+  const colors = (n) => Array.from({ length: n }, (_, i) => PALETTE[i % PALETTE.length]);
+  const charts = {};
+  let selBreeds = new Set();
+  let selWilayas = new Set();
+
+  if (window.Chart) {
+    Chart.defaults.font.family = 'Tajawal, Cairo, sans-serif';
+    Chart.defaults.color = '#5e6b56';
+  }
+
+  // Tab switching.
+  document.querySelectorAll('.tab').forEach((t) => t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach((x) => x.classList.remove('active'));
+    t.classList.add('active');
+    const tab = t.getAttribute('data-tab');
+    $('tab-overview').classList.toggle('hidden', tab !== 'overview');
+    $('tab-analytics').classList.toggle('hidden', tab !== 'analytics');
+    if (tab === 'analytics') renderAnalytics(); // draw once visible (canvas needs a size)
+  }));
+
+  function chipToggle(set, key, el) {
+    if (set.has(key)) { set.delete(key); el.classList.remove('on'); }
+    else { set.add(key); el.classList.add('on'); }
+  }
+
+  function buildAnalyticsFilters() {
+    const breedsInData = [...new Set(allParticipants.flatMap((p) => (p.entries || []).map((e) => e.breed)))].filter(Boolean).sort();
+    const wilayasInData = [...new Set(allParticipants.map((p) => p.wilaya))].filter(Boolean).sort();
+    selBreeds = new Set(breedsInData);
+    selWilayas = new Set(wilayasInData);
+    const empty = '<span style="color:var(--muted)">لا توجد بيانات</span>';
+    $('fBreeds').innerHTML = breedsInData.map((b) => `<span class="chip-tog on" data-b="${esc(b)}">${esc(b)}</span>`).join('') || empty;
+    $('fWilayas').innerHTML = wilayasInData.map((w) => `<span class="chip-tog on" data-w="${esc(w)}">${esc(w)}</span>`).join('') || empty;
+    $('fBreeds').querySelectorAll('[data-b]').forEach((c) =>
+      c.addEventListener('click', () => { chipToggle(selBreeds, c.getAttribute('data-b'), c); renderAnalytics(); }));
+    $('fWilayas').querySelectorAll('[data-w]').forEach((c) =>
+      c.addEventListener('click', () => { chipToggle(selWilayas, c.getAttribute('data-w'), c); renderAnalytics(); }));
+  }
+
+  $('filtAll').addEventListener('click', () => {
+    $('fBreeds').querySelectorAll('[data-b]').forEach((c) => { selBreeds.add(c.getAttribute('data-b')); c.classList.add('on'); });
+    $('fWilayas').querySelectorAll('[data-w]').forEach((c) => { selWilayas.add(c.getAttribute('data-w')); c.classList.add('on'); });
+    renderAnalytics();
+  });
+  $('filtNone').addEventListener('click', () => {
+    selBreeds.clear(); selWilayas.clear();
+    document.querySelectorAll('#fBreeds .chip-tog, #fWilayas .chip-tog').forEach((c) => c.classList.remove('on'));
+    renderAnalytics();
+  });
+
+  function computeAnalytics() {
+    const pSet = new Set();
+    let birds = 0, cages = 0;
+    const breedAgg = {}, wilayaAgg = {};
+    for (const p of allParticipants) {
+      if (!selWilayas.has(p.wilaya)) continue;
+      let inc = false;
+      for (const e of (p.entries || [])) {
+        if (!selBreeds.has(e.breed)) continue;
+        inc = true; birds += e.birds; cages += e.cages;
+        (breedAgg[e.breed] || (breedAgg[e.breed] = { p: new Set(), b: 0, c: 0 }));
+        breedAgg[e.breed].p.add(p.id); breedAgg[e.breed].b += e.birds; breedAgg[e.breed].c += e.cages;
+        (wilayaAgg[p.wilaya] || (wilayaAgg[p.wilaya] = { p: new Set(), b: 0, c: 0 }));
+        wilayaAgg[p.wilaya].p.add(p.id); wilayaAgg[p.wilaya].b += e.birds; wilayaAgg[p.wilaya].c += e.cages;
+      }
+      if (inc) pSet.add(p.id);
+    }
+    const breeds = Object.entries(breedAgg).map(([k, v]) => ({ breed: k, participants: v.p.size, birds: v.b, cages: v.c })).sort((a, b) => b.birds - a.birds);
+    const wilayas = Object.entries(wilayaAgg).map(([k, v]) => ({ wilaya: k, participants: v.p.size, birds: v.b, cages: v.c })).sort((a, b) => b.participants - a.participants);
+    return { participants: pSet.size, birds, cages, breeds, wilayas };
+  }
+
+  function renderAnalytics() {
+    const a = computeAnalytics();
+    $('fParticipants').textContent = num(a.participants);
+    $('fBirds').textContent = num(a.birds);
+    $('fCages').textContent = num(a.cages);
+    $('fBreedsCount').textContent = num(a.breeds.length);
+
+    const emptyRow = '<tr><td colspan="5" style="text-align:center;color:var(--muted)">لا توجد بيانات مطابقة.</td></tr>';
+    const tb = a.birds || 1, tp = a.participants || 1;
+    $('breedStats').innerHTML = a.breeds.map((b) => `
+      <tr><td><b>${esc(b.breed)}</b></td>
+        <td><span class="badge beige">${b.participants}</span></td>
+        <td>${b.birds}</td><td>${b.cages}</td>
+        <td>${progBar((b.birds / tb) * 100)}</td></tr>`).join('') || emptyRow;
+    $('wilayaStats').innerHTML = a.wilayas.map((w) => `
+      <tr><td><b>${esc(w.wilaya)}</b></td>
+        <td><span class="badge">${w.participants}</span></td>
+        <td>${w.birds}</td><td>${w.cages}</td>
+        <td>${progBar((w.participants / tp) * 100)}</td></tr>`).join('') || emptyRow;
+
+    drawCharts(a);
+  }
+
+  function mkChart(id, cfg) {
+    if (!window.Chart) return;
+    if (charts[id]) charts[id].destroy();
+    charts[id] = new Chart($(id), cfg);
+  }
+
+  function drawCharts(a) {
+    const baseOpts = (extra = {}) => Object.assign({
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { rtl: true, labels: { boxWidth: 14, padding: 12 } },
+        tooltip: { rtl: true },
+      },
+    }, extra);
+
+    const topB = a.breeds.slice(0, 12);
+    const topWp = a.wilayas.slice(0, 12);
+    const topWb = [...a.wilayas].sort((x, y) => y.birds - x.birds).slice(0, 12);
+
+    mkChart('chBreedPie', {
+      type: 'doughnut',
+      data: { labels: topB.map((b) => b.breed), datasets: [{ data: topB.map((b) => b.birds), backgroundColor: colors(topB.length), borderColor: '#fff', borderWidth: 2 }] },
+      options: baseOpts({ plugins: { legend: { position: 'bottom', rtl: true, labels: { boxWidth: 12, padding: 10 } }, tooltip: { rtl: true } }, cutout: '55%' }),
+    });
+    mkChart('chBreedBar', {
+      type: 'bar',
+      data: { labels: topB.map((b) => b.breed), datasets: [
+        { label: 'الطيور', data: topB.map((b) => b.birds), backgroundColor: '#2f7d4f', borderRadius: 6 },
+        { label: 'الأقفاص', data: topB.map((b) => b.cages), backgroundColor: '#cda860', borderRadius: 6 },
+      ] },
+      options: baseOpts({ scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }),
+    });
+    mkChart('chWilayaPart', {
+      type: 'bar',
+      data: { labels: topWp.map((w) => w.wilaya), datasets: [{ label: 'المشاركون', data: topWp.map((w) => w.participants), backgroundColor: colors(topWp.length), borderRadius: 6 }] },
+      options: baseOpts({ plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }),
+    });
+    mkChart('chWilayaBirds', {
+      type: 'bar',
+      data: { labels: topWb.map((w) => w.wilaya), datasets: [{ label: 'الطيور', data: topWb.map((w) => w.birds), backgroundColor: '#3c9a63', borderRadius: 6 }] },
+      options: baseOpts({ indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } }),
+    });
   }
 
   // ---- breed management ----
