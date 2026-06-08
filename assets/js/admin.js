@@ -13,7 +13,8 @@
   $('logoutBtn').addEventListener('click', (e) => { e.preventDefault(); Auth.logout(); });
 
   function fmtDate(d) {
-    try { return new Date(d).toLocaleDateString('ar-DZ', { year: 'numeric', month: '2-digit', day: '2-digit' }); }
+    // 'en-GB' = dd/mm/yyyy with Western (Latin) digits, never Eastern-Arabic.
+    try { return new Date(d).toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' }); }
     catch { return d; }
   }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }

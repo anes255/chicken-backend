@@ -134,7 +134,8 @@
     const start = performance.now();
     function step(now) {
       const p = Math.min((now - start) / dur, 1);
-      el.textContent = Math.floor(p * target).toLocaleString('ar');
+      // 'en-US' keeps Western (Latin) digits 0-9 — never Eastern-Arabic ٠-٩.
+      el.textContent = Math.floor(p * target).toLocaleString('en-US');
       if (p < 1) requestAnimationFrame(step);
     }
     requestAnimationFrame(step);
