@@ -20,15 +20,17 @@
 
   async function loadAll() {
     try {
-      const [stats, list, breedsRes] = await Promise.all([
+      const [stats, list, breedsRes, adminsRes] = await Promise.all([
         api('/api/admin/stats', { auth: true }),
         api('/api/admin/participants', { auth: true }),
         api('/api/breeds'),
+        api('/api/admin/admins', { auth: true }),
       ]);
       allParticipants = list.participants;
       allBreeds = breedsRes.breeds || [];
       renderStats(stats);
       renderBreedChips();
+      renderAdmins(adminsRes);
       renderFilters();
       renderTable();
       $('loading').classList.add('hidden');
@@ -37,6 +39,83 @@
       if (String(e.message).match(/الجلسة|الدخول|الإدارة/)) { Auth.logout(); return; }
       $('loading').innerHTML = '<p style="color:var(--danger)">' + esc(e.message) + '</p>';
     }
+  }
+
+  // ---- admin accounts management ----
+  let admins = [];
+  async function refreshAdmins() {
+    const res = await api('/api/admin/admins', { auth: true });
+    renderAdmins(res);
+  }
+  function renderAdmins(res) {
+    admins = res.admins || [];
+    const primaryRow = `<tr>
+      <td><b>${esc(res.primary.fullName)}</b></td>
+      <td>${esc(res.primary.phone)}</td>
+      <td><span class="badge">أساسي</span></td>
+      <td><span style="color:var(--muted);font-size:.85rem">غير قابل للتعديل</span></td>
+    </tr>`;
+    const rows = admins.map((a) => `
+      <tr>
+        <td><b>${esc(a.fullName)}</b></td>
+        <td>${esc(a.phone)}</td>
+        <td><span class="badge beige">مدير</span></td>
+        <td class="actions-cell">
+          <button class="btn btn-gold btn-sm" data-aedit="${a.id}">تعديل</button>
+          <button class="btn btn-danger btn-sm" data-adel="${a.id}">حذف</button>
+        </td>
+      </tr>`).join('');
+    $('adminsBody').innerHTML = primaryRow + rows;
+    $('adminsBody').querySelectorAll('[data-aedit]').forEach((b) =>
+      b.addEventListener('click', () => openAdminEdit(b.getAttribute('data-aedit'))));
+    $('adminsBody').querySelectorAll('[data-adel]').forEach((b) =>
+      b.addEventListener('click', () => delAdmin(b.getAttribute('data-adel'))));
+  }
+
+  $('addAdminBtn').addEventListener('click', async () => {
+    $('adminAlert').classList.remove('show');
+    const body = { fullName: $('naName').value, phone: $('naPhone').value, password: $('naPass').value };
+    try {
+      await api('/api/admin/admins', { method: 'POST', auth: true, body });
+      $('naName').value = $('naPhone').value = $('naPass').value = '';
+      await refreshAdmins();
+    } catch (e) {
+      $('adminAlert').textContent = e.message;
+      $('adminAlert').classList.add('show');
+    }
+  });
+
+  const adminModalBg = $('adminModalBg');
+  const adminEditForm = $('adminEditForm');
+  function openAdminEdit(id) {
+    const a = admins.find((x) => String(x.id) === String(id));
+    if (!a) return;
+    $('adminModalAlert').classList.remove('show');
+    adminEditForm.id.value = a.id;
+    adminEditForm.fullName.value = a.fullName || '';
+    adminEditForm.phone.value = a.phone || '';
+    adminEditForm.password.value = '';
+    adminModalBg.classList.add('open');
+  }
+  $('closeAdminModal').addEventListener('click', () => adminModalBg.classList.remove('open'));
+  adminModalBg.addEventListener('click', (e) => { if (e.target === adminModalBg) adminModalBg.classList.remove('open'); });
+  adminEditForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(adminEditForm));
+    try {
+      await api('/api/admin/admins/' + data.id, { method: 'PUT', auth: true, body: data });
+      adminModalBg.classList.remove('open');
+      await refreshAdmins();
+    } catch (err) {
+      $('adminModalAlert').textContent = err.message;
+      $('adminModalAlert').classList.add('show');
+    }
+  });
+  async function delAdmin(id) {
+    const a = admins.find((x) => String(x.id) === String(id));
+    if (!confirm(`حذف المدير "${a ? a.fullName : ''}"؟`)) return;
+    try { await api('/api/admin/admins/' + id, { method: 'DELETE', auth: true }); await refreshAdmins(); }
+    catch (e) { alert(e.message); }
   }
 
   function renderStats(s) {

@@ -23,6 +23,7 @@
   <header class="site-header">
     <div class="container nav">
       <a class="brand" href="index.html">
+        <img src="assets/img/exhibition-logo.jpg" onerror="this.onerror=null;this.src=&#39;assets/img/exhibition-logo.jpg&#39;" alt="شعار المعرض" />
         <img src="assets/img/brahma-logo.jpg" onerror="this.onerror=null;this.src=&#39;assets/img/brahma-logo.jpg&#39;" alt="شعار نادي البراهما" />
         <span class="titles"><b>لوحة إدارة المعرض</b><span>نادي البراهما الجزائري — Admin</span></span>
       </a>
@@ -83,6 +84,26 @@
             <button class="btn btn-primary btn-sm" id="addBreedBtn"><span data-icon="plus"></span> إضافة سلالة</button>
           </div>
           <div class="breed-chips" id="breedChips"></div>
+        </div>
+
+        <!-- ADMIN MANAGEMENT -->
+        <div class="panel">
+          <h3><span data-icon="users"></span> إدارة المدراء</h3>
+          <p style="color:var(--muted);font-size:.9rem;margin-bottom:12px">إضافة مدراء جدد يمكنهم الدخول إلى لوحة الإدارة، وتعديل بياناتهم أو حذفهم.</p>
+          <div class="alert error" id="adminAlert"></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>الاسم</th><th>رقم الهاتف</th><th>النوع</th><th>إجراءات</th></tr></thead>
+              <tbody id="adminsBody"></tbody>
+            </table>
+          </div>
+          <h4 style="margin:18px 0 10px;color:var(--green-800)">إضافة مدير جديد</h4>
+          <div class="row-2">
+            <div class="field"><label>الاسم الكامل</label><input id="naName" placeholder="اسم المدير" /></div>
+            <div class="field"><label>رقم الهاتف</label><input id="naPhone" inputmode="tel" placeholder="رقم الهاتف" /></div>
+          </div>
+          <div class="field"><label>كلمة المرور</label><input id="naPass" type="password" placeholder="6 أحرف على الأقل" /></div>
+          <button class="btn btn-primary btn-sm" id="addAdminBtn"><span data-icon="plus"></span> إضافة مدير</button>
         </div>
 
         <!-- BY WILAYA -->
@@ -146,6 +167,24 @@
         <div class="modal-actions">
           <button class="btn btn-primary" type="submit">حفظ</button>
           <button class="btn btn-ghost" type="button" id="closeModal">إلغاء</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- EDIT ADMIN MODAL -->
+  <div class="modal-bg" id="adminModalBg">
+    <div class="modal">
+      <h3>تعديل بيانات المدير</h3>
+      <div class="alert error" id="adminModalAlert"></div>
+      <form id="adminEditForm">
+        <input type="hidden" name="id" />
+        <div class="field"><label>الاسم الكامل</label><input name="fullName" required /></div>
+        <div class="field"><label>رقم الهاتف</label><input name="phone" required /></div>
+        <div class="field"><label>كلمة مرور جديدة (اتركها فارغة للإبقاء على الحالية)</label><input name="password" type="password" placeholder="••••••" /></div>
+        <div class="modal-actions">
+          <button class="btn btn-primary" type="submit">حفظ</button>
+          <button class="btn btn-ghost" type="button" id="closeAdminModal">إلغاء</button>
         </div>
       </form>
     </div>
