@@ -29,6 +29,36 @@
     return data;
   };
 
+  // ---- performance: warm backend, preconnect, prefetch pages on hover ----
+  (function perfBoost() {
+    try {
+      // Open the connection to the API host early (cuts first-request latency).
+      const pc = document.createElement('link');
+      pc.rel = 'preconnect'; pc.href = window.API_BASE; pc.crossOrigin = 'anonymous';
+      document.head.appendChild(pc);
+      // Wake the backend now so login / dashboard / admin don't wait on a cold start.
+      fetch(window.API_BASE + '/api/health', { cache: 'no-store' }).catch(function () {});
+    } catch (e) {}
+
+    // Prefetch a page's HTML the moment the user hovers/taps a link → instant nav.
+    const seen = new Set();
+    function prefetch(href) {
+      if (!href || seen.has(href)) return;
+      seen.add(href);
+      const l = document.createElement('link');
+      l.rel = 'prefetch'; l.href = href;
+      document.head.appendChild(l);
+    }
+    function onHover(e) {
+      const a = e.target.closest && e.target.closest('a[href]');
+      if (!a || a.origin !== location.origin || a.hasAttribute('target')) return;
+      if ((a.getAttribute('href') || '').charAt(0) === '#') return;
+      prefetch(a.href);
+    }
+    document.addEventListener('pointerover', onHover, { passive: true });
+    document.addEventListener('touchstart', onHover, { passive: true });
+  })();
+
   // ---- nav (mobile toggle + active link + auth-aware links) ----
   document.addEventListener('DOMContentLoaded', function () {
     const toggle = document.querySelector('.nav-toggle');
