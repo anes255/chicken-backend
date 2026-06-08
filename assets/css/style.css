@@ -73,7 +73,7 @@ section{position:relative}
 /* ---------- Buttons ---------- */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 24px;border-radius:999px;font-weight:700;font-family:inherit;font-size:1rem;cursor:pointer;border:2px solid transparent;transition:transform .2s,box-shadow .2s,background .2s}
 .btn:hover{transform:translateY(-2px)}
-.btn-primary{background:linear-gradient(135deg,var(--green-600),var(--green-800));color:#fff;box-shadow:var(--shadow)}
+.btn-primary{background:linear-gradient(135deg,var(--green-500),var(--green-700));color:#fff;box-shadow:var(--shadow)}
 .btn-primary:hover{box-shadow:0 18px 40px -14px rgba(20,53,36,.6)}
 .btn-gold{background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--green-900)}
 .btn-ghost{background:transparent;border-color:var(--green-600);color:var(--green-700)}
