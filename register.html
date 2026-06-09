@@ -59,6 +59,12 @@
 
         <div class="alert error" id="alert"></div>
 
+        <div id="closedNotice" class="hidden center" style="padding:18px 0">
+          <h3 style="color:var(--danger);font-size:1.45rem;margin-bottom:8px">التسجيل مغلق حالياً</h3>
+          <p style="color:var(--muted)">نعتذر، باب التسجيل في المعرض مغلق في الوقت الحالي. تابعونا لمعرفة موعد إعادة فتح التسجيل.</p>
+          <a href="/" class="btn btn-ghost mt">العودة إلى الرئيسية</a>
+        </div>
+
         <form id="regForm">
           <div class="row-2">
             <div class="field">
@@ -102,6 +108,11 @@
           </div>
 
           <div class="field">
+            <label>سعر القفص (دج)</label>
+            <input name="cagePrice" type="number" min="0" step="50" placeholder="سعر القفص الواحد بالدينار، مثال: 1500" />
+          </div>
+
+          <div class="field">
             <label>ملاحظات (اختياري)</label>
             <textarea name="notes" placeholder="أي معلومات إضافية تخص مشاركتك..."></textarea>
           </div>
@@ -133,6 +144,13 @@
     let editor;
 
     (async function () {
+      // If the admin has closed registration, hide the form and show a notice.
+      const settings = await api('/api/settings').catch(() => ({ registrationOpen: true }));
+      if (settings && settings.registrationOpen === false) {
+        document.getElementById('closedNotice').classList.remove('hidden');
+        form.style.display = 'none';
+        return;
+      }
       const breeds = await loadBreeds();
       editor = makeBreedEditor({
         container: document.getElementById('breedsBox'),

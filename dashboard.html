@@ -84,6 +84,7 @@
               <button type="button" class="add-breed" id="addBreed"><span data-icon="plus"></span> إضافة سلالة أخرى</button>
               <div class="breeds-summary" id="breedsSummary"></div>
             </div>
+            <div class="field"><label>سعر القفص (دج)</label><input name="cagePrice" type="number" min="0" step="50" /></div>
             <div class="field"><label>ملاحظات</label><textarea name="notes"></textarea></div>
             <button class="btn btn-primary" type="submit" id="saveBtn">حفظ التعديلات</button>
           </form>
@@ -123,6 +124,7 @@
         form.fullName.value = user.fullName || '';
         $('phoneField').value = user.phone || '';
         form.email.value = user.email || '';
+        form.cagePrice.value = user.cagePrice || 0;
         form.notes.value = user.notes || '';
         fillWilayas($('wilaya'), $('baladya'), user.wilaya, user.baladya);
         editor = makeBreedEditor({

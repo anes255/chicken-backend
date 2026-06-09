@@ -21,14 +21,16 @@
 
   async function loadAll() {
     try {
-      const [list, breedsRes, adminsRes] = await Promise.all([
+      const [list, breedsRes, adminsRes, settings] = await Promise.all([
         api('/api/admin/participants', { auth: true }),
         api('/api/breeds'),
         api('/api/admin/admins', { auth: true }),
+        api('/api/settings'),
       ]);
       allParticipants = list.participants;
       allBreeds = breedsRes.breeds || [];
       renderOverviewTotals();
+      renderRegControl(settings);
       renderBreedChips();
       renderAdmins(adminsRes);
       renderFilters();
@@ -43,6 +45,39 @@
   }
 
   function num(n) { return Number(n || 0).toLocaleString('en-US'); }
+
+  // ---- registration control (open/closed + deadline) ----
+  function renderRegControl(s) {
+    $('regToggle').checked = !!s.open;
+    // datetime-local needs "YYYY-MM-DDTHH:mm" in local time.
+    if (s.deadline) {
+      const d = new Date(s.deadline);
+      if (!isNaN(d)) {
+        const pad = (n) => String(n).padStart(2, '0');
+        $('regDeadline').value = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      }
+    } else {
+      $('regDeadline').value = '';
+    }
+    updateRegStatus(s);
+  }
+  function updateRegStatus(s) {
+    const open = s.registrationOpen;
+    $('regStatusText').textContent = open ? 'التسجيل مفتوح ✔' : 'التسجيل مغلق ✖';
+    $('regStatusText').style.color = open ? 'var(--green-700)' : 'var(--danger)';
+  }
+  $('saveRegSettings').addEventListener('click', async () => {
+    $('regSetAlert').classList.remove('show');
+    const dl = $('regDeadline').value;
+    const body = { open: $('regToggle').checked, deadline: dl ? new Date(dl).toISOString() : '' };
+    try {
+      const s = await api('/api/admin/settings', { method: 'PUT', auth: true, body });
+      renderRegControl({ open: s.open, deadline: s.deadline, registrationOpen: s.registrationOpen });
+    } catch (e) {
+      $('regSetAlert').textContent = e.message;
+      $('regSetAlert').classList.add('show');
+    }
+  });
 
   // Overview totals (computed client-side from participants).
   function renderOverviewTotals() {
@@ -228,7 +263,7 @@
 
   function computeAnalytics() {
     const pSet = new Set();
-    let birds = 0, cages = 0;
+    let birds = 0, cages = 0, cageValue = 0;
     const breedAgg = {}, wilayaAgg = {};
     for (const p of allParticipants) {
       if (!selWilayas.has(p.wilaya)) continue;
@@ -236,6 +271,7 @@
       for (const e of (p.entries || [])) {
         if (!selBreeds.has(e.breed)) continue;
         inc = true; birds += e.birds; cages += e.cages;
+        cageValue += e.cages * (p.cagePrice || 0);
         (breedAgg[e.breed] || (breedAgg[e.breed] = { p: new Set(), b: 0, c: 0 }));
         breedAgg[e.breed].p.add(p.id); breedAgg[e.breed].b += e.birds; breedAgg[e.breed].c += e.cages;
         (wilayaAgg[p.wilaya] || (wilayaAgg[p.wilaya] = { p: new Set(), b: 0, c: 0 }));
@@ -245,7 +281,7 @@
     }
     const breeds = Object.entries(breedAgg).map(([k, v]) => ({ breed: k, participants: v.p.size, birds: v.b, cages: v.c })).sort((a, b) => b.birds - a.birds);
     const wilayas = Object.entries(wilayaAgg).map(([k, v]) => ({ wilaya: k, participants: v.p.size, birds: v.b, cages: v.c })).sort((a, b) => b.participants - a.participants);
-    return { participants: pSet.size, birds, cages, breeds, wilayas };
+    return { participants: pSet.size, birds, cages, cageValue, breeds, wilayas };
   }
 
   function renderAnalytics() {
@@ -253,7 +289,7 @@
     $('fParticipants').textContent = num(a.participants);
     $('fBirds').textContent = num(a.birds);
     $('fCages').textContent = num(a.cages);
-    $('fBreedsCount').textContent = num(a.breeds.length);
+    $('fCageValue').textContent = num(Math.round(a.cageValue));
 
     const emptyRow = '<tr><td colspan="5" style="text-align:center;color:var(--muted)">لا توجد بيانات مطابقة.</td></tr>';
     const tb = a.birds || 1, tp = a.participants || 1;
@@ -411,6 +447,7 @@
         <td>${esc(p.baladya)}</td>
         <td><b>${p.numBirds}</b></td>
         <td><b>${p.numCages}</b></td>
+        <td>${num(p.cagePrice || 0)}</td>
         <td>${breedChipsHtml(p)}</td>
         <td>${fmtDate(p.createdAt)}</td>
         <td class="actions-cell">
@@ -456,6 +493,7 @@
     editForm.fullName.value = p.fullName || '';
     editForm.phone.value = p.phone || '';
     editForm.email.value = p.email || '';
+    editForm.cagePrice.value = p.cagePrice || 0;
     editForm.notes.value = p.notes || '';
     fillWilayas($('mWilaya'), $('mBaladya'), p.wilaya, p.baladya);
     modalEditor = makeBreedEditor({
@@ -493,10 +531,10 @@
   // ---- CSV export ----
   $('exportBtn').addEventListener('click', () => {
     const rows = filtered();
-    const head = ['الاسم', 'الهاتف', 'البريد', 'الولاية', 'البلدية', 'السلالات (طيور/أقفاص)', 'إجمالي الطيور', 'إجمالي الأقفاص', 'ملاحظات', 'التاريخ'];
+    const head = ['الاسم', 'الهاتف', 'البريد', 'الولاية', 'البلدية', 'السلالات (طيور/أقفاص)', 'إجمالي الطيور', 'إجمالي الأقفاص', 'سعر القفص', 'ملاحظات', 'التاريخ'];
     const csv = [head.join(',')].concat(rows.map((p) => {
       const breeds = (p.entries || []).map((e) => `${e.breed}:${e.birds}/${e.cages}`).join(' | ') || p.breed || '';
-      return [p.fullName, p.phone, p.email, p.wilaya, p.baladya, breeds, p.numBirds, p.numCages, p.notes, fmtDate(p.createdAt)]
+      return [p.fullName, p.phone, p.email, p.wilaya, p.baladya, breeds, p.numBirds, p.numCages, p.cagePrice || 0, p.notes, fmtDate(p.createdAt)]
         .map((v) => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`).join(',');
     })).join('\n');
     const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });

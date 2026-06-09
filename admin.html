@@ -80,6 +80,25 @@
             <div class="stat"><span class="ic" data-icon="mappin"></span><b id="tWilayas">0</b><span>ولايات مشاركة</span></div>
           </div>
 
+          <!-- REGISTRATION CONTROL -->
+          <div class="panel">
+            <h3><span data-icon="edit"></span> التحكّم في التسجيل</h3>
+            <div class="alert error" id="regSetAlert"></div>
+            <div class="reg-control">
+              <label class="switch"><input type="checkbox" id="regToggle" /><span class="slider"></span></label>
+              <div>
+                <b id="regStatusText" style="font-size:1.05rem">—</b>
+                <p style="color:var(--muted);font-size:.85rem;margin:0">تفعيل أو إيقاف استقبال تسجيلات جديدة.</p>
+              </div>
+            </div>
+            <div class="field" style="max-width:360px;margin-top:16px">
+              <label>إغلاق تلقائي في تاريخ/وقت (اختياري)</label>
+              <input type="datetime-local" id="regDeadline" />
+              <p style="color:var(--muted);font-size:.8rem;margin-top:4px">بعد هذا الوقت يُغلق التسجيل تلقائياً. اتركه فارغاً لإلغائه.</p>
+            </div>
+            <button class="btn btn-primary btn-sm" id="saveRegSettings">حفظ الإعدادات</button>
+          </div>
+
           <!-- PARTICIPANTS -->
           <div class="panel">
             <h3><span data-icon="users"></span> إدارة المشاركين</h3>
@@ -93,7 +112,7 @@
               <table>
                 <thead><tr>
                   <th>#</th><th>الاسم</th><th>الهاتف</th><th>الولاية</th><th>البلدية</th>
-                  <th>الطيور</th><th>الأقفاص</th><th>السلالة</th><th>التاريخ</th><th>إجراءات</th>
+                  <th>الطيور</th><th>الأقفاص</th><th>سعر القفص</th><th>السلالة</th><th>التاريخ</th><th>إجراءات</th>
                 </tr></thead>
                 <tbody id="usersBody"></tbody>
               </table>
@@ -159,7 +178,7 @@
             <div class="stat"><span class="ic" data-icon="users"></span><b id="fParticipants">0</b><span>المشاركون المطابقون</span></div>
             <div class="stat"><span class="ic" data-icon="feather"></span><b id="fBirds">0</b><span>إجمالي الطيور</span></div>
             <div class="stat"><span class="ic" data-icon="package"></span><b id="fCages">0</b><span>إجمالي الأقفاص</span></div>
-            <div class="stat"><span class="ic" data-icon="dna"></span><b id="fBreedsCount">0</b><span>سلالات مشمولة</span></div>
+            <div class="stat"><span class="ic" data-icon="trending"></span><b id="fCageValue">0</b><span>قيمة الأقفاص (دج)</span></div>
           </div>
 
           <!-- CHARTS -->
@@ -215,6 +234,7 @@
           <div class="breeds-box" id="mBreedsBox"></div>
           <button type="button" class="add-breed" id="mAddBreed"><span data-icon="plus"></span> إضافة سلالة</button>
         </div>
+        <div class="field"><label>سعر القفص (دج)</label><input name="cagePrice" type="number" min="0" step="50" /></div>
         <div class="field"><label>ملاحظات</label><textarea name="notes"></textarea></div>
         <div class="modal-actions">
           <button class="btn btn-primary" type="submit">حفظ</button>
