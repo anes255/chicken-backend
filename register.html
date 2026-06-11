@@ -73,7 +73,7 @@
             </div>
             <div class="field">
               <label>رقم الهاتف *</label>
-              <input name="phone" required inputmode="tel" placeholder="06xx / 05xx / 07xx" />
+              <input name="phone" required inputmode="tel" placeholder="رقم جزائري: 06/05/07" />
             </div>
           </div>
 
@@ -100,6 +100,11 @@
           </div>
 
           <div class="field">
+            <label>العنوان *</label>
+            <input name="address" required placeholder="العنوان الكامل (الحي، الشارع...)" />
+          </div>
+
+          <div class="field">
             <label>السلالات وعدد الطيور والأقفاص *</label>
             <p style="font-size:.82rem;color:var(--muted);margin:-2px 0 8px">أضف كل سلالة على حدة مع عدد طيورها وأقفاصها الخاص بها.</p>
             <div class="breeds-box" id="breedsBox"></div>
@@ -108,8 +113,8 @@
           </div>
 
           <div class="field">
-            <label>سعر القفص (دج)</label>
-            <input name="cagePrice" type="number" min="0" step="50" placeholder="سعر القفص الواحد بالدينار، مثال: 1500" />
+            <label>سعر القفص (دج) *</label>
+            <input name="cagePrice" type="number" min="0" step="any" required placeholder="أي سعر بالدينار، مثال: 1500" />
           </div>
 
           <div class="field">
@@ -173,8 +178,18 @@
       alert.classList.remove('show');
       const data = Object.fromEntries(new FormData(form));
       data.entries = editor.entries;
+      // Algerian mobile only (accepts 0X… or +213/00213…).
+      const cphone = String(data.phone || '').replace(/[\s\-().]/g, '').replace(/^\+?(?:00)?213/, '').replace(/^([^0])/, '0$1');
+      if (!/^0[567][0-9]{8}$/.test(cphone)) {
+        alert.textContent = 'يرجى إدخال رقم هاتف جزائري صحيح يبدأ بـ 05 أو 06 أو 07.';
+        alert.classList.add('show'); return;
+      }
       if (data.entries.length === 0) {
         alert.textContent = 'يرجى إضافة سلالة واحدة على الأقل من القائمة.';
+        alert.classList.add('show'); return;
+      }
+      if (data.entries.some((x) => !(+x.birds > 0) || !(+x.cages > 0))) {
+        alert.textContent = 'يرجى إدخال عدد الطيور وعدد الأقفاص (أكبر من صفر) لكل سلالة.';
         alert.classList.add('show'); return;
       }
       if (!document.getElementById('agree').checked) {

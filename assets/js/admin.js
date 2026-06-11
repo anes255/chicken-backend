@@ -46,6 +46,16 @@
 
   function num(n) { return Number(n || 0).toLocaleString('en-US'); }
 
+  // Floating confirmation popup.
+  function toast(msg, kind) {
+    const t = document.createElement('div');
+    t.className = 'toast ' + (kind || 'success');
+    t.textContent = msg;
+    document.body.appendChild(t);
+    requestAnimationFrame(() => t.classList.add('show'));
+    setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 350); }, 2600);
+  }
+
   // ---- registration control (open/closed + deadline) ----
   function renderRegControl(s) {
     $('regToggle').checked = !!s.open;
@@ -73,6 +83,7 @@
     try {
       const s = await api('/api/admin/settings', { method: 'PUT', auth: true, body });
       renderRegControl({ open: s.open, deadline: s.deadline, registrationOpen: s.registrationOpen });
+      toast('تم الحفظ بنجاح ✓');
     } catch (e) {
       $('regSetAlert').textContent = e.message;
       $('regSetAlert').classList.add('show');
@@ -155,6 +166,7 @@
       await api('/api/admin/admins/' + data.id, { method: 'PUT', auth: true, body: data });
       adminModalBg.classList.remove('open');
       await refreshAdmins();
+      toast('تم حفظ بيانات المدير بنجاح ✓');
     } catch (err) {
       $('adminModalAlert').textContent = err.message;
       $('adminModalAlert').classList.add('show');
@@ -493,6 +505,7 @@
     editForm.fullName.value = p.fullName || '';
     editForm.phone.value = p.phone || '';
     editForm.email.value = p.email || '';
+    editForm.address.value = p.address || '';
     editForm.cagePrice.value = p.cagePrice || 0;
     editForm.notes.value = p.notes || '';
     fillWilayas($('mWilaya'), $('mBaladya'), p.wilaya, p.baladya);
@@ -515,6 +528,7 @@
       await api('/api/admin/participants/' + data.id, { method: 'PUT', auth: true, body: data });
       closeEdit();
       await loadAll();
+      toast('تم حفظ التعديلات بنجاح ✓');
     } catch (err) {
       modalAlert.textContent = err.message;
       modalAlert.classList.add('show');
@@ -531,10 +545,10 @@
   // ---- CSV export ----
   $('exportBtn').addEventListener('click', () => {
     const rows = filtered();
-    const head = ['الاسم', 'الهاتف', 'البريد', 'الولاية', 'البلدية', 'السلالات (طيور/أقفاص)', 'إجمالي الطيور', 'إجمالي الأقفاص', 'سعر القفص', 'ملاحظات', 'التاريخ'];
+    const head = ['الاسم', 'الهاتف', 'البريد', 'الولاية', 'البلدية', 'العنوان', 'السلالات (طيور/أقفاص)', 'إجمالي الطيور', 'إجمالي الأقفاص', 'سعر القفص', 'ملاحظات', 'التاريخ'];
     const csv = [head.join(',')].concat(rows.map((p) => {
       const breeds = (p.entries || []).map((e) => `${e.breed}:${e.birds}/${e.cages}`).join(' | ') || p.breed || '';
-      return [p.fullName, p.phone, p.email, p.wilaya, p.baladya, breeds, p.numBirds, p.numCages, p.cagePrice || 0, p.notes, fmtDate(p.createdAt)]
+      return [p.fullName, p.phone, p.email, p.wilaya, p.baladya, p.address, breeds, p.numBirds, p.numCages, p.cagePrice || 0, p.notes, fmtDate(p.createdAt)]
         .map((v) => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`).join(',');
     })).join('\n');
     const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
